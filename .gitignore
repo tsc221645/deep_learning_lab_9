@@ -23,3 +23,6 @@ outputs/metrics/*
 !outputs/metrics/portugal_holidays.csv
 *.log
 .ipynb_checkpoints/
+*.md
+!/README.md
+.venv-1
