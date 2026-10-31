@@ -10,6 +10,8 @@
 
 Los modelos PyTorch usan `Trainer`, MSE en escala normalizada, early stopping por pérdida de validación y registros de MAE/MASE en kWh por época. Las opciones de escalado son `none`, `global` y `per_series`; sus estadísticas se ajustan solo con el panel de entrenamiento. LightGBM registra MAE, MSE y MASE por iteración. Todos los pronósticos se invierten a kWh y pasan por el mismo backtest y las mismas métricas de fase 3.
 
+MLP, DLinear y NLinear requieren CUDA. No hay fallback a CPU: el runner valida CUDA antes de empezar. `requirements.txt` instala PyTorch `cu128`; si otro entorno requiere una rueda distinta, ajusta el índice CUDA y la versión de PyTorch antes de ejecutar.
+
 El evaluador registra los parámetros entrenables de PyTorch. Para LightGBM, `params_total` y `params_trainable` cuentan las hojas de los árboles, que son los valores efectivos ajustados por los regresores.
 
 El backtest mantiene los 92 orígenes diarios de prueba. LightGBM requiere 168 observaciones para construir el rezago semanal, por lo que la variante `L=48` solo se ejecuta en redes PyTorch. Las redes se comparan con `L=48, 168, 336` y los tres modos de normalización. La sensibilidad de historia de 3, 12 y 30 meses se ejecuta para SeasonalNaive 24/168, LightGBM y DLinear.

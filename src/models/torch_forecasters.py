@@ -213,11 +213,14 @@ class TorchForecastAdapter:
             else None
         )
 
-        device = torch.device(
-            str(config.get("device", "cuda" if torch.cuda.is_available() else "cpu"))
-        )
-        if device.type == "cuda" and not torch.cuda.is_available():
-            raise RuntimeError("CUDA was requested but is not available")
+        device = torch.device(str(config.get("device", "cuda")))
+        if device.type != "cuda":
+            raise ValueError("Phase 4 PyTorch models require CUDA; CPU is disabled")
+        if not torch.cuda.is_available():
+            raise RuntimeError(
+                "CUDA is not available in this PyTorch installation. "
+                "Install a CUDA-enabled PyTorch build before training."
+            )
         batch_size = int(config.get("batch_size", 512))
         if batch_size < 1:
             raise ValueError("batch_size must be positive")

@@ -17,6 +17,8 @@ Los adaptadores implementan `fit(train, val, config)` cuando requieren ajuste y 
 
 Los modelos de esta entrega están en `src/models/`: cuatro baselines StatsForecast, LightGBM directo a 24 pasos, MLP multi-salida, DLinear y NLinear. La alternativa estadística seleccionada es AutoETS(A,A,A) con estacionalidad diaria. Los modelos lineales y el MLP usan `Trainer` y `TemporalScaler`; el estado de escalado se ajusta solo con entrenamiento.
 
+Los modelos PyTorch requieren CUDA y no hacen fallback a CPU. La instalación fijada usa PyTorch `cu128`.
+
 ## Evaluación y ejecución
 
 El backtest y las métricas están en `src/evaluation/backtest.py` y `src/evaluation/metrics.py`. Se usa un origen diario de medianoche para cada día de prueba, un horizonte de 24 y MASE con estacionalidad 24. Los targets se leen después de que el adaptador genera el pronóstico.

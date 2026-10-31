@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import pytest
+import torch
 
 from src.data.panel import Panel
 from src.evaluation.backtest import backtest, monthly_refit_backtest
@@ -66,7 +67,11 @@ def test_backtest_predicts_92_by_24_for_each_client_without_future_inputs():
     assert result.predictions["horizon_step"].min() == 1
     assert result.predictions["horizon_step"].max() == 24
     assert len(result.by_horizon) == 24
-    assert result.experiment["gpu_peak_mb"] == "N/A"
+    if torch.cuda.is_available():
+        assert isinstance(result.experiment["gpu_peak_mb"], float)
+        assert result.experiment["gpu_peak_mb"] >= 0
+    else:
+        assert result.experiment["gpu_peak_mb"] == "N/A"
     assert result.experiment["fit_count"] == 1
 
 

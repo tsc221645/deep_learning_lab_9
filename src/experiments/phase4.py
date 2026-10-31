@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any
 
 import pandas as pd
+import torch
 
 from src.data.panel import Panel, load_panel_matrix
 from src.evaluation.backtest import backtest
@@ -93,6 +94,7 @@ def build_experiments(
                 "max_train_windows_per_client": 8 if smoke else 256,
                 "training_stride": 1,
                 "validation_stride": 24,
+                "device": "cuda",
             }
             if model_name == "mlp":
                 neural_config["hidden_size"] = 32 if smoke else 128
@@ -148,6 +150,7 @@ def build_experiments(
                     "max_train_windows_per_client": 256,
                     "training_stride": 1,
                     "validation_stride": 24,
+                    "device": "cuda",
                 },
             )
         for model_name, factory in (
@@ -184,6 +187,12 @@ def run_phase4(
     unknown = set(models).difference(DEFAULT_MODELS)
     if unknown:
         raise ValueError(f"Unknown model names: {sorted(unknown)}")
+    if set(models).intersection({"mlp", "dlinear", "nlinear"}):
+        if not torch.cuda.is_available():
+            raise RuntimeError(
+                "CUDA is required for MLP, DLinear, and NLinear. "
+                "Install the CUDA-enabled requirements before running."
+            )
     artifact_dir = output_dir / "models" / "phase4"
     experiments = [
         experiment

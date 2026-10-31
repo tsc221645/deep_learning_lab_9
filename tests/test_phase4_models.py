@@ -54,6 +54,11 @@ def test_experiment_matrix_covers_required_history_and_normalization_variants(
     }
     assert len(smoke_names) == 8
     assert all(name.endswith("-smoke") for name in smoke_names)
+    assert all(
+        config["device"] == "cuda"
+        for _, _, config in experiments
+        if "device" in config
+    )
 
 
 @pytest.mark.parametrize(
@@ -69,6 +74,7 @@ def test_torch_adapters_train_and_predict_original_scale(adapter_type, tmp_path)
             "lookback": 48,
             "horizon": 24,
             "normalization": "per_series",
+            "device": "cuda",
             "max_epochs": 1,
             "patience": 1,
             "batch_size": 4,
@@ -98,11 +104,27 @@ def test_torch_adapters_train_and_predict_original_scale(adapter_type, tmp_path)
 
     assert forecast.shape == (2, 24)
     assert np.isfinite(forecast).all()
+    assert metadata["device"].startswith("cuda")
+    assert next(adapter.module.parameters()).device.type == "cuda"
     assert metadata["best_epoch"] == 1
     training_log = pd.read_csv(metadata["training_log"])
     assert {"train_loss", "validation_loss", "train_mae_kwh", "train_mase"} <= set(
         training_log.columns
     )
+
+
+def test_torch_adapters_reject_cpu_training():
+    train, validation, _ = small_panels()
+    with pytest.raises(ValueError, match="require CUDA"):
+        MLPAdapter().fit(
+            train,
+            validation,
+            {
+                "lookback": 48,
+                "horizon": 24,
+                "device": "cpu",
+            },
+        )
 
 
 @pytest.mark.parametrize(
