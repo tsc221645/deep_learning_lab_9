@@ -62,3 +62,13 @@ python -m pytest -q
 El panel horario se carga por grupos Parquet en una matriz `clientes x horas`. La selección de covariables por defecto es cíclica (7 columnas); también está disponible one-hot (44 columnas). Se puede usar la serie original, z-score global o z-score por cliente; los estadísticos se ajustan solo entre 2012-01-01 y 2014-07-01. La variante por ventana usa únicamente el historial y conserva sus parámetros para invertir la escala antes de calcular métricas.
 
 Las ventanas usan L=168, H=24 y stride 1. Se separan por fecha objetivo y las covariables futuras de calendario se entregan aparte del historial y del target. Los conteos de entrenamiento/validación/prueba y los 92 orígenes diarios de prueba quedan en `outputs/metrics/window_counts.csv`; los feriados portugueses se listan en `outputs/metrics/portugal_holidays.csv` y las figuras descriptivas quedan en `outputs/figures/eda/`.
+
+## Fase 3: evaluación común
+
+La interfaz de adaptadores, el backtest principal de 92 orígenes, las tres reevaluaciones con ajuste mensual, las métricas y las notas de APIs están documentadas en [docs/fase3_evaluacion.md](docs/fase3_evaluacion.md). El motor guarda predicciones Parquet y métricas por cliente, horizonte, hora y semana navideña en `outputs/predictions/`. Ejecuta las pruebas con:
+
+```powershell
+python -m pytest -q
+```
+
+Para el ajuste final de prueba, selecciona `best_epoch` con validación y configura `refit_train_validation=True`. La evaluación mensual crea un modelo nuevo al inicio de cada mes y excluye todos los datos de ese mes del ajuste inicial.
