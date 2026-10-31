@@ -49,3 +49,16 @@ Si el entorno no permite procesar los 370, fija un subconjunto reproducible con 
 - `data/raw/` y `data/processed/`: datos locales ignorados por Git.
 
 Las fases se desarrollan en orden y cada fase se valida y confirma en su propio commit.
+
+## Fase 2: EDA y ventanas
+
+Ejecuta el análisis o abre `notebooks/laboratorio_series_tiempo.ipynb`:
+
+```powershell
+python -m src.data.eda
+python -m pytest -q
+```
+
+El panel horario se carga por grupos Parquet en una matriz `clientes x horas`. La selección de covariables por defecto es cíclica (7 columnas); también está disponible one-hot (44 columnas). Se puede usar la serie original, z-score global o z-score por cliente; los estadísticos se ajustan solo entre 2012-01-01 y 2014-07-01. La variante por ventana usa únicamente el historial y conserva sus parámetros para invertir la escala antes de calcular métricas.
+
+Las ventanas usan L=168, H=24 y stride 1. Se separan por fecha objetivo y las covariables futuras de calendario se entregan aparte del historial y del target. Los conteos de entrenamiento/validación/prueba y los 92 orígenes diarios de prueba quedan en `outputs/metrics/window_counts.csv`; los feriados portugueses se listan en `outputs/metrics/portugal_holidays.csv` y las figuras descriptivas quedan en `outputs/figures/eda/`.

@@ -11,6 +11,15 @@ data/processed/*
 !data/processed/dataset_audit.json
 !data/processed/per_client_audit.csv
 
-outputs/
+outputs/*
+!outputs/figures/
+!outputs/metrics/
+outputs/figures/*
+!outputs/figures/eda/
+outputs/metrics/*
+!outputs/metrics/client_scales.csv
+!outputs/metrics/window_counts.csv
+!outputs/metrics/eda_summary.json
+!outputs/metrics/portugal_holidays.csv
 *.log
 .ipynb_checkpoints/

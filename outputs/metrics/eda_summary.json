@@ -1,0 +1,34 @@
+{
+  "client_count": 370,
+  "hourly_rows_per_client": 35063,
+  "first_timestamp": "2011-01-01 01:00:00",
+  "last_timestamp": "2014-12-31 23:00:00",
+  "train_mean_hourly_kwh_min": 0.0,
+  "train_mean_hourly_kwh_median": 120.68912219751235,
+  "train_mean_hourly_kwh_max": 48816.55244883041,
+  "portugal_public_holiday_dates": 44,
+  "calendar_features_cyclic": 7,
+  "calendar_features_onehot": 44,
+  "window_counts": [
+    {
+      "split": "train",
+      "origins_per_client": 21865,
+      "windows_all_clients": 8090050,
+      "daily_backtest_origins": 0
+    },
+    {
+      "split": "validation",
+      "origins_per_client": 2185,
+      "windows_all_clients": 808450,
+      "daily_backtest_origins": 0
+    },
+    {
+      "split": "test",
+      "origins_per_client": 2185,
+      "windows_all_clients": 808450,
+      "daily_backtest_origins": 92
+    }
+  ],
+  "normalization_note": "Compare global and per-series scaling; fit statistics only on the training interval. Window scaling uses its history only.",
+  "eda_scope": "Descriptive plots use the available panel and are not used to tune models on the test period."
+}
