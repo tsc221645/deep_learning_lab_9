@@ -72,3 +72,13 @@ python -m pytest -q
 ```
 
 Para el ajuste final de prueba, selecciona `best_epoch` con validación y configura `refit_train_validation=True`. La evaluación mensual crea un modelo nuevo al inicio de cada mes y excluye todos los datos de ese mes del ajuste inicial.
+
+## Fase 4: modelos iniciales
+
+La fase 4 incluye baselines StatsForecast, AutoETS, LightGBM directo a 24 pasos, MLP, DLinear y NLinear. La matriz de experimentos, las opciones de sensibilidad y los artefactos quedan descritos en [docs/fase4_modelos.md](docs/fase4_modelos.md). Para ejecutar:
+
+```powershell
+python -m src.experiments.phase4
+```
+
+Usa `--smoke` para una comprobación rápida, no para reportar métricas finales. La entrega de interfaces y decisiones para la siguiente fase está en [HANDOFF_A_B.md](HANDOFF_A_B.md).

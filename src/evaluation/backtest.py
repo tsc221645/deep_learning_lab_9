@@ -394,6 +394,7 @@ def _finish_result(
 def _settings(config: Mapping[str, Any] | None) -> dict[str, Any]:
     provided = dict(config or {})
     settings: dict[str, Any] = {
+        **provided,
         "lookback": int(provided.get("lookback", 168)),
         "horizon": int(provided.get("horizon", 24)),
         "seed": int(provided.get("seed", 42)),
@@ -570,6 +571,19 @@ def _model_name(model: ForecastAdapter) -> str:
 
 
 def _parameter_counts(model: ForecastAdapter) -> tuple[int | None, int | None]:
+    count_method = getattr(model, "parameter_counts", None)
+    if callable(count_method):
+        counts = count_method()
+        if (
+            not isinstance(counts, tuple)
+            or len(counts) != 2
+            or any(
+                count is not None and (not isinstance(count, int) or count < 0)
+                for count in counts
+            )
+        ):
+            raise TypeError("parameter_counts must return two nonnegative integers")
+        return counts
     module = model
     if not callable(getattr(module, "parameters", None)):
         module = getattr(model, "module", getattr(model, "model", None))

@@ -70,6 +70,26 @@ def test_backtest_predicts_92_by_24_for_each_client_without_future_inputs():
     assert result.experiment["fit_count"] == 1
 
 
+def test_fit_receives_additional_model_configuration():
+    model = LastValueModel()
+    backtest(
+        model,
+        small_panel(),
+        split_ranges=TEST_SPLITS,
+        origins=[pd.Timestamp("2014-10-01")],
+        config={
+            "learning_rate": 0.03,
+            "max_epochs": 7,
+            "artifact_dir": "custom-artifacts",
+        },
+        output_dir=None,
+    )
+
+    assert model.fit_calls[0][2]["learning_rate"] == 0.03
+    assert model.fit_calls[0][2]["max_epochs"] == 7
+    assert model.fit_calls[0][2]["artifact_dir"] == "custom-artifacts"
+
+
 def test_backtest_rejects_bad_forecast_shape():
     class BadModel(LastValueModel):
         def predict(self, history, future_calendar, horizon=24, origin=None):
