@@ -1,0 +1,16 @@
+.venv/
+__pycache__/
+.pytest_cache/
+*.py[cod]
+
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+!data/processed/client_ids.csv
+!data/processed/dataset_audit.json
+!data/processed/per_client_audit.csv
+
+outputs/
+*.log
+.ipynb_checkpoints/

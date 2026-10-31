@@ -1,0 +1,21 @@
+seed: 42
+
+data:
+  download_url: https://archive.ics.uci.edu/static/public/321/electricityloaddiagrams20112014.zip
+  raw_filename: LD2011_2014.txt
+  raw_separator: ";"
+  raw_decimal: ","
+  source_frequency_minutes: 15
+  source_power_unit: kW
+  target_energy_unit: kWh
+  quarter_hour_energy_factor: 0.25
+  timestamp_timezone: Europe/Lisbon
+  timestamp_representation: local_naive
+  first_eligible_date: "2012-01-01"
+  last_eligible_date_exclusive: "2015-01-01"
+  client_limit: 370
+
+forecast:
+  input_length_hours: 168
+  horizon_hours: 24
+  test_origins: 92
