@@ -43,6 +43,7 @@ def build_experiments(
     """Return unique, named model configurations in reproducible order."""
     experiments: list[tuple[str, Any, dict[str, Any]]] = []
     seen: set[tuple[str, str]] = set()
+    seen_ids: set[str] = set()
 
     def add(
         name: str,
@@ -69,9 +70,12 @@ def build_experiments(
                 sort_keys=True,
             ),
         )
+        if name in seen_ids:
+            raise ValueError(f"Duplicate phase 4 config_id would overwrite artifacts: {name}")
         if signature not in seen:
             experiments.append((name, factory, config))
             seen.add(signature)
+            seen_ids.add(name)
 
     factories = {
         "naive": naive_adapter,
@@ -160,6 +164,9 @@ def build_experiments(
         ):
             for lookback in (48, 168, 336):
                 for normalization in ("none", "global", "per_series"):
+                    if lookback == 168 and normalization == "per_series":
+                        # Already registered above as the default configuration.
+                        continue
                     add(
                         f"{model_name}-L{lookback}-{normalization}-h30",
                         factory,

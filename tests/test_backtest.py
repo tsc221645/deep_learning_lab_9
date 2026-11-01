@@ -217,7 +217,8 @@ def test_monthly_refits_only_with_data_before_each_month():
         create_model,
         small_panel(),
         split_ranges=TEST_SPLITS,
-        config={"lookback": 168, "horizon": 24, "best_epoch": 3},
+        config={"lookback": 168, "horizon": 24, "best_epoch": 3,
+                "history_months": 3},
         output_dir=None,
     )
 
@@ -228,5 +229,6 @@ def test_monthly_refits_only_with_data_before_each_month():
     for model, month in zip(instances, ("2014-10-01", "2014-11-01", "2014-12-01")):
         train, validation, config = model.fit_calls[0]
         assert validation is None
+        assert train.timestamps[0] == pd.Timestamp("2014-01-01")
         assert train.timestamps[-1] < pd.Timestamp(month)
         assert config["final_epochs"] == 3

@@ -160,10 +160,9 @@ def monthly_refit_backtest(
             origins=None,
         )
         train_start = ranges["train"][0]
-        train = _tail_months(
-            _panel_slice(panel, train_start, month_start),
-            settings["history_months"],
-        )
+        # Monthly refits use all observations since the fixed training start.
+        # A rolling history_months cap would not be an expanding window.
+        train = _panel_slice(panel, train_start, month_start)
         if not len(train.timestamps):
             raise ValueError(
                 f"No training history is available before {month_start}"

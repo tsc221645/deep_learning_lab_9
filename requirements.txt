@@ -4,6 +4,7 @@ matplotlib==3.11.2
 scikit-learn==1.9.1
 --extra-index-url https://download.pytorch.org/whl/cu128
 torch==2.11.0+cu128
+torchvision==0.26.0+cu128
 statsforecast==2.1.1
 neuralforecast==3.3.0
 lightgbm==4.7.0

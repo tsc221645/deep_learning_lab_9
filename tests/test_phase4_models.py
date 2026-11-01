@@ -38,6 +38,7 @@ def test_experiment_matrix_covers_required_history_and_normalization_variants(
 ):
     experiments = build_experiments(tmp_path)
     names = {name for name, _, _ in experiments}
+    assert len(names) == len(experiments)
 
     assert "seasonal_naive_24-h3" in names
     assert "seasonal_naive_168-h12" in names

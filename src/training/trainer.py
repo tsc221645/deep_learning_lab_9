@@ -4,6 +4,7 @@ from collections import defaultdict
 from collections.abc import Callable, Mapping, Sequence
 from copy import deepcopy
 from dataclasses import dataclass
+import time
 
 import numpy as np
 import pandas as pd
@@ -67,6 +68,9 @@ class Trainer:
         records = []
 
         for epoch in range(1, epoch_limit + 1):
+            if self.device.type == "cuda":
+                torch.cuda.synchronize(self.device)
+            epoch_started = time.perf_counter()
             train_metrics = self._run_epoch(
                 model,
                 train_loader,
@@ -85,8 +89,11 @@ class Trainer:
                 if val_loader is not None
                 else None
             )
+            if self.device.type == "cuda":
+                torch.cuda.synchronize(self.device)
             record = {
                 "epoch": epoch,
+                "epoch_time_s": time.perf_counter() - epoch_started,
                 "train_loss": train_metrics["loss"],
                 "train_mae_kwh": train_metrics["mae"],
                 "train_mase": train_metrics["mase"],
@@ -152,7 +159,12 @@ class Trainer:
             if training:
                 optimizer.zero_grad(set_to_none=True)
             with torch.set_grad_enabled(training):
-                forecast = model(inputs, future_calendar)
+                forward_train = getattr(model, "forward_train", None)
+                forecast = (
+                    forward_train(inputs, future_calendar, target)
+                    if training and callable(forward_train)
+                    else model(inputs, future_calendar)
+                )
                 loss = nn.functional.mse_loss(forecast, target)
                 if training:
                     loss.backward()

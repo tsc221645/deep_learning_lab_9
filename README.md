@@ -4,7 +4,7 @@ Implementación del laboratorio de series de tiempo de CC3092. El enunciado de l
 
 ## Requisitos
 
-- Python 3.13
+- Python 3.12 o 3.13 (las pruebas locales reportadas pasaron con 3.12)
 - Git
 - Aproximadamente 1 GB libre para el archivo comprimido, el archivo original y los datos procesados
 
@@ -82,3 +82,80 @@ python -m src.experiments.phase4
 ```
 
 Usa `--smoke` para una comprobación rápida, no para reportar métricas finales. La entrega de interfaces y decisiones para la siguiente fase está en [HANDOFF_A_B.md](HANDOFF_A_B.md).
+
+## Trabajo del integrante B (preparado, sin ejecutar)
+
+El estado observado, los fallos de VRAM y las instrucciones para otra persona
+están en [EJECUCION_INTEGRANTE_B.md](EJECUCION_INTEGRANTE_B.md).
+
+El panel `data/processed/hourly.parquet` existe localmente, pero está ignorado
+por Git y debe transferirse aparte. El repositorio no incluye los pronósticos y
+métricas completos de la fase 4. Tampoco están presentes los documentos `docs/fase3_evaluacion.md`
+y `docs/fase4_modelos.md` citados en el traspaso. Por tanto, las fases 1–4 tienen
+código y pruebas, pero su evaluación completa no está acreditada en este checkout.
+
+Se añadieron las tres estrategias LSTM de la fase 5 (recursiva, multi-salida y
+seq2seq) y el adaptador zero-shot de Chronos-Bolt. El entrenamiento recursivo y
+seq2seq puede usar teacher forcing; validación y prueba realimentan únicamente
+pronósticos. La búsqueda de L usa la validación para elegir una configuración por
+estrategia y guarda esa elección antes de evaluar prueba. El backtest final
+reajusta con entrenamiento + validación usando el número de epochs elegido.
+
+### Primera comprobación recomendada
+
+No iniciar aún todas las corridas. Primero confirmar Python 3.12/3.13 y una GPU CUDA,
+instalar dependencias, preparar el panel si no fue transferido y correr las pruebas
+y una integración pequeña. El primer ejecutor ya pasó 42 pruebas con Python 3.12.
+
+```powershell
+py -0p
+nvidia-smi
+python -m venv .venv
+$labPy = '.\.venv\Scripts\python.exe'
+& $labPy -m pip install -r requirements.txt
+& $labPy -m src.data.download --output-dir data/raw
+& $labPy -m src.data.preprocess --input data/raw/LD2011_2014.txt --output data/processed/hourly.parquet --audit-dir data/processed --seed 42
+& $labPy -m pytest -q
+& $labPy -m src.experiments.phase4 --smoke
+& $labPy -m src.experiments.smoke_b --models lstm_recursive
+```
+
+`smoke_b` usa ocho clientes, un origen y entrenamiento mínimo. Para comprobar
+después un adaptador concreto, sustituye `lstm_recursive` por `nhits`, `tcn`,
+`patchtst`, `tft` o `deepar`. `chronos` descarga pesos públicos la primera vez;
+pruébalo preferentemente en Kaggle con Internet habilitado. Ninguna salida
+`--smoke` sirve como resultado final. Detente si falla cualquiera de los pasos
+y conserva el error completo; no continúes con la fase siguiente.
+
+Si ejecutas en Kaggle, copia o sube **este estado actualizado del repositorio**:
+los cambios locales sin commit no aparecen al clonar GitHub. Activa GPU e
+Internet y verifica `python --version` y CUDA antes de instalar las versiones
+fijadas. Guarda `data/processed/` y `outputs/` entre sesiones.
+
+Para reproducirlo en un entorno remoto con GPU CUDA, desde la raíz del proyecto
+y tras instalar `requirements.txt`, sigue este orden:
+
+```powershell
+python -m src.data.download --output-dir data/raw
+python -m src.data.preprocess --input data/raw/LD2011_2014.txt --output data/processed/hourly.parquet --audit-dir data/processed --seed 42
+python -m pytest -q
+python -m src.experiments.phase4
+python -m src.experiments.phase5 select
+python -m src.experiments.phase5 test
+python -m src.experiments.phase6
+python -m src.experiments.chronos_bolt
+python -m src.experiments.phase7 history
+python -m src.experiments.phase7 monthly
+python -m src.experiments.phase7 local
+python -m src.experiments.phase7 seeds
+python -m src.experiments.phase8
+```
+
+Estos comandos de B no se han ejecutado ni verificado en este checkout. La fase
+8 exige resultados completos y se detiene si faltan modelos, clientes, fechas,
+cuantiles o los experimentos de historia. Genera CSV, figuras y un borrador en
+`report/informe_borrador.md`; ese borrador necesita interpretación humana, el
+enlace Git real y conversión/revisión a un PDF de cinco páginas como máximo.
+El notebook incluye las secciones de B con `RUN_EXPENSIVE = False` por defecto.
+No se deben presentar conclusiones finales hasta ejecutar y revisar los
+artefactos exigidos.

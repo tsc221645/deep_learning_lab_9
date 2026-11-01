@@ -9,7 +9,13 @@ import pandas as pd
 
 def portugal_holidays(years: Iterable[int]) -> dict:
     """Return Portuguese public holidays keyed by local calendar date."""
-    return dict(holidays.country_holidays("PT", years=sorted(set(years))))
+    # Pin the language: holidays otherwise follows the process locale, so the
+    # same date may be called "Christmas Day" or "Natal" on different machines.
+    return dict(
+        holidays.country_holidays(
+            "PT", years=sorted(set(years)), language="pt_PT"
+        )
+    )
 
 
 def calendar_features(
