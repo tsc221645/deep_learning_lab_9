@@ -85,6 +85,8 @@ Usa `--smoke` para una comprobación rápida, no para reportar métricas finales
 
 ## Trabajo del integrante B (preparado, sin ejecutar)
 
+Para ejecutar todas las fases en Kaggle, seguir [KAGGLE_EJECUCION.md](KAGGLE_EJECUCION.md). Incluye instalación separada de PyTorch, transferencia del panel, comandos por etapa y recuperación de `outputs/` entre sesiones.
+
 El estado observado, los fallos de VRAM y las instrucciones para otra persona
 están en [EJECUCION_INTEGRANTE_B.md](EJECUCION_INTEGRANTE_B.md).
 

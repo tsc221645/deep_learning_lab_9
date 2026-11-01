@@ -5,7 +5,6 @@ used to select or change hyperparameters.
 """
 
 import argparse
-import json
 from pathlib import Path
 
 import pandas as pd
@@ -32,7 +31,9 @@ def configuration(name: str, output_dir: Path) -> dict:
 def run(panel_path: Path, ids_path: Path, output_dir: Path,
         names: list[str]) -> pd.DataFrame:
     panel = load_panel_matrix(panel_path, ids_path)
-    rows = []
+    destination = output_dir / "metrics" / "phase6_summary.csv"
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    rows = pd.read_csv(destination).to_dict("records") if destination.exists() else []
     for name in names:
         model = NeuralForecastAdapter(name)
         config = configuration(name, output_dir)
@@ -53,21 +54,22 @@ def run(panel_path: Path, ids_path: Path, output_dir: Path,
         }
         if name == "DeepAR":
             quantiles = model.probabilistic_predictions(result.predictions)
-            destination = (
+            quantile_path = (
                 output_dir / "predictions" / "deepar" /
                 config["config_id"] / "quantiles.parquet"
             )
-            destination.parent.mkdir(parents=True, exist_ok=True)
-            quantiles.to_parquet(destination, index=False)
+            quantile_path.parent.mkdir(parents=True, exist_ok=True)
+            quantiles.to_parquet(quantile_path, index=False)
             row.update(probabilistic_metrics(quantiles))
+        rows = [previous for previous in rows
+                if previous["config_id"] != row["config_id"]]
         rows.append(row)
+        summary = pd.DataFrame(rows)
+        summary.to_csv(destination, index=False)
+        (destination.with_suffix(".json")).write_text(
+            summary.to_json(orient="records", indent=2), encoding="utf-8"
+        )
     summary = pd.DataFrame(rows)
-    destination = output_dir / "metrics" / "phase6_summary.csv"
-    destination.parent.mkdir(parents=True, exist_ok=True)
-    summary.to_csv(destination, index=False)
-    (destination.with_suffix(".json")).write_text(
-        json.dumps(rows, indent=2, allow_nan=False), encoding="utf-8"
-    )
     return summary
 
 

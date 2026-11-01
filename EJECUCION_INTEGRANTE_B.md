@@ -1,5 +1,7 @@
 # Traspaso para ejecutar el bloque del integrante B
 
+**Actualización para Kaggle:** seguir [KAGGLE_EJECUCION.md](KAGGLE_EJECUCION.md) para la secuencia detallada. Las fases 4 y 6 ahora acumulan sus resúmenes por `config_id` al ejecutarse por modelo; la sensibilidad a historia de fase 7 admite `--history-models` y acumula `phase7_history.csv`. La selección deep de fase 7 guarda los candidatos de validación entre sesiones. Estos cambios de reanudación aún no se han probado con corridas reales.
+
 **Estado: preparado para continuar las comprobaciones; todavía no validado para una corrida completa ni listo para entregar.** Este documento registra lo observado hasta el 31 de octubre de 2026. Las corridas largas y el informe final requieren resultados reales.
 
 ## Qué se hizo

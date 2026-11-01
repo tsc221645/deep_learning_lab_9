@@ -26,4 +26,5 @@ outputs/metrics/*
 *.md
 !/README.md
 !/EJECUCION_INTEGRANTE_B.md
+!/KAGGLE_EJECUCION.md
 .venv-1

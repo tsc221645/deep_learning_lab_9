@@ -249,13 +249,18 @@ def run_phase4(
             }
         )
 
-    summary = pd.DataFrame(rows)
     summary_dir = output_dir / "metrics"
     summary_dir.mkdir(parents=True, exist_ok=True)
     summary_stem = "phase4_smoke_summary" if smoke else "phase4_summary"
-    summary.to_csv(summary_dir / f"{summary_stem}.csv", index=False)
+    summary_path = summary_dir / f"{summary_stem}.csv"
+    summary = pd.DataFrame(rows)
+    if summary_path.exists():
+        previous = pd.read_csv(summary_path)
+        summary = pd.concat([previous, summary], ignore_index=True)
+        summary = summary.drop_duplicates("config_id", keep="last")
+    summary.to_csv(summary_path, index=False)
     (summary_dir / f"{summary_stem}.json").write_text(
-        json.dumps(rows, indent=2, allow_nan=False),
+        summary.to_json(orient="records", indent=2),
         encoding="utf-8",
     )
     return summary
