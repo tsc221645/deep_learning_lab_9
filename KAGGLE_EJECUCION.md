@@ -2,6 +2,14 @@
 
 Esta guía usa el código del repositorio actual y el panel horario ya procesado. **No se han ejecutado las corridas completas en Kaggle**. Los smoke hechos en la computadora original cubrieron LSTM, NHITS, TCN y PatchTST; TFT y DeepAR fallaron por VRAM antes de limitar los lotes, y Chronos sigue sin comprobarse.
 
+## Punto actual de la ejecución en Kaggle
+
+El usuario ya instaló las dependencias y ejecutó `python -m pytest -q` en Kaggle: **43 pruebas pasadas en 19.57 s**. Los 15 avisos proceden de `anyio`/pytest y `matplotlib`/pyparsing; son advertencias de deprecación, no fallos de pruebas. El problema inicial para localizar el panel en `/kaggle/input` ya quedó resuelto: las corridas de fase 4 produjeron predicciones completas. No repetir instalación, copia del panel ni pruebas en esta sesión.
+
+**Actualización de avance:** el usuario ya compartió resultados completos de `lightgbm-h30`, `lightgbm-h3`, `lightgbm-h12`, las tres configuraciones principales MLP/DLinear/NLinear y `dlinear-L168-per_series-h3`, cada una con 816 960 predicciones de 370 clientes. La tercera línea de fase 4 seguía activa al reportarlo. Las advertencias `FutureWarning` de pandas no detienen el entrenamiento.
+
+**Por qué se ejecutó fase 4 otra vez:** `HANDOFF_A_B.md` afirma que la fase 4 estaba completa, pero el checkout entregado no contenía sus pronósticos y métricas completos. Los archivos `.txt` bajo `outputs/models/phase4/lightgbm-direct/lightgbm-h30-smoke/` son modelos de la prueba pequeña: su `phase4_smoke_summary.csv` registra solo **192 predicciones, 8 clientes y 1 origen** por modelo. Los resultados actuales de Kaggle usan **816 960 predicciones, 370 clientes y 92 orígenes**; son las corridas completas necesarias para la comparación final. No es posible afirmar que A nunca ejecutó la fase 4 en otra máquina: lo verificable es que los artefactos completos no estaban en este repositorio local y `outputs/` está mayormente ignorado por Git. La fase 4 corresponde originalmente a A; se reprodujo en Kaggle para disponer de sus referencias antes de ejecutar B (fases 5–8).
+
 ## 1. Preparar lo que se subirá
 
 1. Publicar los cambios actuales del repositorio en GitHub o subir un ZIP con el código actualizado como Kaggle Dataset. Antes de clonar en Kaggle, comprobar que los archivos `requirements-kaggle.txt`, `src/experiments/phase7.py` y esta guía estén en GitHub. Un commit local no basta: debe haber `git push`. Si se usa ZIP, extraerlo en `/kaggle/working` y trabajar allí.
@@ -27,6 +35,8 @@ Ejecutar estas celdas **en orden**. Sustituir `URL_DEL_REPOSITORIO` y `NOMBRE_DE
 %pip install -q -r requirements-kaggle.txt
 ```
 
+Si pip muestra avisos sobre paquetes preinstalados de Kaggle, comprobar primero si la instalación terminó con `Successfully installed` y si la siguiente celda de importaciones funciona. Esta lista se ajustó a `numpy==2.2.6` y `matplotlib==3.10.0` para respetar `numba 0.61.2` y `ydata-profiling 4.18.4` del entorno reportado. `bigframes`, `dopamine-rl`, `gradio` y `moviepy` no forman parte de este laboratorio; sus avisos no son una razón para reinstalar todo el entorno. Si aparece un `ERROR` final o falla una importación del proyecto, conservar el error completo.
+
 **Reiniciar el kernel** después de instalar, desde el menú del Notebook; luego volver a `%cd /kaggle/working/deep_learning_lab_9`. Esto evita que queden módulos anteriores cargados en memoria. Comprobar las versiones y CUDA:
 
 ```python
@@ -37,24 +47,56 @@ assert torch.cuda.is_available()
 assert torch.__version__.split('+')[0] == '2.11.0'
 assert torchvision.__version__.split('+')[0] == '0.26.0'
 from torchvision.ops import nms  # Comprueba el operador que falló antes.
+import numpy, pandas, matplotlib, numba
+import statsforecast, neuralforecast, lightgbm, chronos
+print(numpy.__version__, matplotlib.__version__, numba.__version__)
 ```
 
-Copiar los datos desde la ruta que Kaggle muestre en **Input**. Si no coincide con el ejemplo, listar `/kaggle/input` y reemplazar la ruta. **No usar un panel generado con otra selección de clientes.**
+Los nombres visibles del Dataset no siempre coinciden con su carpeta dentro de `/kaggle/input` (por ejemplo, Kaggle puede cambiar mayúsculas por minúsculas). Buscar el archivo real y copiarlo junto con los IDs **desde la misma carpeta**. Ejecutar esta celda desde la raíz del repositorio; no hace falta volver a correr `pytest` si ya mostró 43 pruebas pasadas. **No usar un panel generado con otra selección de clientes.**
 
 ```python
-!find /kaggle/input -maxdepth 4 -name hourly.parquet -o -name client_ids.csv
-!mkdir -p data/processed
-!cp /kaggle/input/NOMBRE_DEL_DATASET/hourly.parquet data/processed/hourly.parquet
-!cp /kaggle/input/NOMBRE_DEL_DATASET/client_ids.csv data/processed/client_ids.csv
-!cp /kaggle/input/NOMBRE_DEL_DATASET/dataset_audit.json data/processed/dataset_audit.json
-!python -m pytest -q
+%cd /kaggle/working/deep_learning_lab_9
+from pathlib import Path
+from shutil import copy2
+
+matches = sorted(Path('/kaggle/input').rglob('hourly.parquet'))
+print('Paneles encontrados:', matches)
+if len(matches) != 1:
+    print('Datasets conectados:', list(Path('/kaggle/input').iterdir()))
+    raise FileNotFoundError('Debe haber exactamente un hourly.parquet en Input; revisar Add Input o el contenido del Dataset')
+
+source = matches[0].parent
+target = Path('data/processed')
+target.mkdir(parents=True, exist_ok=True)
+for filename in ('hourly.parquet', 'client_ids.csv'):
+    file = source / filename
+    if not file.is_file():
+        raise FileNotFoundError(f'Falta {file}; subirlo al mismo Dataset que el panel')
+    copy2(file, target / filename)
+audit = source / 'dataset_audit.json'
+if audit.is_file():
+    copy2(audit, target / audit.name)
+print('Copiado desde:', source)
+print('Archivos de trabajo:', sorted(p.name for p in target.iterdir()))
 ```
+
+Si `Paneles encontrados: []`, abrir **Input → Add Input** y comprobar que el Dataset esté conectado y contenga `hourly.parquet`; no basta con haberlo creado. Para inspeccionar manualmente nombres y carpetas, ejecutar `!ls -lah /kaggle/input` y `!find /kaggle/input -maxdepth 4 -type f | head -40`. Si el panel aparece en otra subcarpeta, la celda anterior lo encontrará igual. La línea `cp` del ejemplo anterior para `dataset_audit.json` también necesitaba un segundo argumento de destino; ya está corregida aquí.
 
 Si no se tiene el panel, se puede habilitar Internet y ejecutar `python -m src.data.download --output-dir data/raw` seguido de `python -m src.data.preprocess --input data/raw/LD2011_2014.txt --output data/processed/hourly.parquet --audit-dir data/processed --seed 42`. Guardar después el Parquet como Dataset privado para no repetir la descarga.
 
 ## 3. Primera comprobación de GPU y adaptadores
 
-Ejecutar cada comando en una celda separada y conservar el traceback completo si falla. Los smoke tienen ocho clientes y un origen; **sus métricas no son resultados finales**.
+**Siguiente paso desde el punto actual:** comprobar que la sesión sigue con GPU y que los datos procesados están en la ruta esperada. Ejecutar esta celda:
+
+```python
+%cd /kaggle/working/deep_learning_lab_9
+import torch
+print("GPU disponible:", torch.cuda.is_available())
+!nvidia-smi
+!ls -lh data/processed/hourly.parquet data/processed/client_ids.csv
+```
+
+Si `GPU disponible` es `False` o falta uno de los dos archivos, corregir Settings/Input y la copia del panel antes de continuar. Si es `True` y ambos archivos existen, ejecutar **solo la primera línea** del bloque siguiente (`phase4 --smoke`) y comprobar su resultado. Luego avanzar una línea por vez; cada línea puede ir en una celda distinta. Conservar el traceback completo si alguna falla. Los smoke tienen ocho clientes y un origen; **sus métricas no son resultados finales**.
 
 ```python
 !python -m src.experiments.phase4 --smoke
@@ -75,13 +117,27 @@ Cada línea es una celda `!python ...` independiente. Así se ve qué etapa term
 
 La comparación final exige las predicciones completas de los ocho modelos de A. Si no se reciben de A, correr la fase 4 en Kaggle. Puede dividirse por familia; los artefactos quedan separados por `config_id`:
 
+**Uso de CPU/GPU:** `naive`, `seasonal_naive_24`, `seasonal_naive_168`, `auto_ets` y `lightgbm` se ejecutan en CPU. `mlp`, `dlinear` y `nlinear` exigen CUDA y entrenan en GPU, aunque la preparación de datos y parte de la evaluación también ocupen CPU. Si se pegan las tres líneas en una sola celda, Jupyter las ejecuta **en orden, una después de la otra**; eso es válido. Hasta que termine la segunda línea, no se habrá iniciado ningún modelo de GPU. Para identificar con claridad el avance y guardar resultados entre etapas, se recomienda una celda por línea. No repetir una corrida que siga activa.
+
+**Tiempo y límite de sesión:** las tres líneas originales sin filtro abarcan 40 configuraciones completas: 8 baselines/estadísticos, 3 LightGBM y 29 variantes de MLP/DLinear/NLinear. Para obtener primero los ocho modelos principales, la opción nueva `--primary-only` reduce esas líneas a 4, 1 y 3 configuraciones respectivamente. Las variantes adicionales de fase 4 deben ejecutarse después si se necesitan para la sensibilidad de A; `--primary-only` no las acredita. AutoETS sigue siendo costoso aun con el filtro, porque trabaja por cliente y por los 92 orígenes. No hay una estimación fiable sin saber qué configuración está en curso. Kaggle documenta un máximo de 12 horas por sesión CPU/GPU, por lo que **no se debe asumir que las tres líneas terminarán juntas en una sesión**. Las corridas completadas guardan artefactos separados en `outputs/predictions/`; conservarlos antes de cambiar de sesión. Esta opción requiere actualizar el repositorio en Kaggle antes de usarla; no afecta una celda que ya está corriendo.
+
 ```python
-!python -m src.experiments.phase4 --models naive seasonal_naive_24 seasonal_naive_168 auto_ets
-!python -m src.experiments.phase4 --models lightgbm
-!python -m src.experiments.phase4 --models mlp dlinear nlinear
+!python -m src.experiments.phase4 --primary-only --models naive seasonal_naive_24 seasonal_naive_168 auto_ets
+!python -m src.experiments.phase4 --primary-only --models lightgbm
+!python -m src.experiments.phase4 --primary-only --models mlp dlinear nlinear
 ```
 
 `outputs/metrics/phase4_summary.csv` se acumula por `config_id` entre invocaciones, y la fase 8 lee los artefactos de `outputs/predictions/`. Conservar `outputs/` completo.
+
+Si el indicador **Output** de Kaggle no cambia mientras el comando trabaja, no concluir que se perdieron los resultados. El evaluador escribe `predictions.parquet`, `experiment.json` y las tablas CSV **al terminar cada configuración**; el resumen de fase 4 se actualiza al terminar el comando de cada familia. Cuando la celda actual termine, comprobar el espacio y los archivos con:
+
+```python
+!du -sh outputs
+!find outputs/predictions -name experiment.json | wc -l
+!ls -lh outputs/metrics/phase4_summary.csv outputs/predictions/mlp/mlp-L168-per_series-h30/predictions.parquet
+```
+
+No ejecutar esas celdas si Kaggle todavía tiene ocupada la celda del entrenamiento. La interfaz puede actualizar su indicador de almacenamiento con retraso; los archivos reales en `/kaggle/working/deep_learning_lab_9/outputs` son la comprobación útil.
 
 ### Fases 5 y 6
 

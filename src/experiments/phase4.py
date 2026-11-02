@@ -34,6 +34,12 @@ DEFAULT_MODELS = (
     "nlinear",
 )
 
+PRIMARY_CONFIG_IDS = {
+    "naive-h30", "seasonal_naive_24-h30", "seasonal_naive_168-h30",
+    "auto_ets-h30", "lightgbm-h30", "mlp-L168-per_series-h30",
+    "dlinear-L168-per_series-h30", "nlinear-L168-per_series-h30",
+}
+
 
 def build_experiments(
     artifact_dir: Path,
@@ -189,6 +195,7 @@ def run_phase4(
     output_dir: Path = Path("outputs"),
     models: tuple[str, ...] = DEFAULT_MODELS,
     smoke: bool = False,
+    primary_only: bool = False,
 ) -> pd.DataFrame:
     """Execute selected phase 4 experiments and save a compact summary."""
     unknown = set(models).difference(DEFAULT_MODELS)
@@ -205,6 +212,7 @@ def run_phase4(
         experiment
         for experiment in build_experiments(artifact_dir, smoke=smoke)
         if experiment[0].split("-")[0] in models
+        and (not primary_only or smoke or experiment[0] in PRIMARY_CONFIG_IDS)
     ]
     evaluation_panel = panel
     if smoke:
@@ -290,6 +298,10 @@ def main() -> None:
         action="store_true",
         help="Run one origin with reduced training sizes to check the pipeline.",
     )
+    parser.add_argument(
+        "--primary-only", action="store_true",
+        help="Run only the eight primary configurations; defer sensitivity grids",
+    )
     args = parser.parse_args()
     panel = load_panel_matrix(args.panel, args.client_ids)
     summary = run_phase4(
@@ -297,6 +309,7 @@ def main() -> None:
         output_dir=args.output_dir,
         models=tuple(args.models),
         smoke=args.smoke,
+        primary_only=args.primary_only,
     )
     print(summary.to_string(index=False))
 

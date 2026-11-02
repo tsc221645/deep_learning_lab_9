@@ -1,8 +1,11 @@
 # Kaggle provides the notebook interface. Install the matched PyTorch pair
 # separately as documented in KAGGLE_EJECUCION.md, then install these packages.
-numpy==2.5.4
+# Kaggle's preinstalled numba 0.61.2 accepts NumPy 2.2, not NumPy 2.5.
+# ydata-profiling (preinstalled, unused here) also accepts this NumPy range.
+numpy==2.2.6
 pandas==2.3.3
-matplotlib==3.11.2
+# Keep the Kaggle image's ydata-profiling constraint satisfied.
+matplotlib==3.10.0
 scikit-learn==1.9.1
 statsforecast==2.1.1
 neuralforecast==3.3.0
