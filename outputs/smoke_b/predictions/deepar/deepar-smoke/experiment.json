@@ -1,0 +1,64 @@
+{
+  "model": "DeepAR",
+  "config_id": "deepar-smoke",
+  "seed": 42,
+  "L": 168,
+  "H": 24,
+  "history_months": 3,
+  "normalization": "per_series",
+  "params_total": 203142,
+  "params_trainable": 203139,
+  "train_time_s": 216.83055820001755,
+  "inference_time_s": 0.37622650002595037,
+  "gpu_peak_mb": 141.88,
+  "hardware": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.13.3",
+    "torch": "2.11.0+cu128",
+    "cuda": "12.8",
+    "device": "cuda"
+  },
+  "metrics": {
+    "n_observations": 192,
+    "n_series": 8,
+    "mae": 14.760341839585662,
+    "rmse": 26.58250907084592,
+    "wape_pct": 19.878509864780938,
+    "mape_pct": 37.33388788230971,
+    "mape_excluded_count": 0,
+    "mase": 1.6780181706407191,
+    "mase_undefined_series_count": 0
+  },
+  "fit_count": 1,
+  "fit_metadata": {
+    "library": "neuralforecast",
+    "model": "DeepAR",
+    "validation_used": true,
+    "scaler_fit_end_exclusive": "2014-07-01T00:00:00",
+    "calendar_columns": [
+      "hour_sin",
+      "hour_cos",
+      "weekday_sin",
+      "weekday_cos",
+      "month_sin",
+      "month_cos",
+      "is_holiday"
+    ],
+    "batch_size": 8,
+    "valid_batch_size": 2,
+    "windows_batch_size": 8,
+    "inference_windows_batch_size": 8,
+    "training_log": "outputs\\smoke_b\\models\\DeepAR\\deepar-smoke\\metrics.csv"
+  },
+  "refit_train_validation": false,
+  "best_epoch": null,
+  "artifacts": {
+    "predictions": "outputs\\smoke_b\\predictions\\deepar\\deepar-smoke\\predictions.parquet",
+    "metrics": "outputs\\smoke_b\\predictions\\deepar\\deepar-smoke\\metrics.json",
+    "by_client": "outputs\\smoke_b\\predictions\\deepar\\deepar-smoke\\metrics_by_client.csv",
+    "by_horizon": "outputs\\smoke_b\\predictions\\deepar\\deepar-smoke\\metrics_by_horizon.csv",
+    "by_hour": "outputs\\smoke_b\\predictions\\deepar\\deepar-smoke\\metrics_by_hour.csv",
+    "christmas_week": "outputs\\smoke_b\\predictions\\deepar\\deepar-smoke\\metrics_christmas_week.csv",
+    "experiment": "outputs\\smoke_b\\predictions\\deepar\\deepar-smoke\\experiment.json"
+  }
+}

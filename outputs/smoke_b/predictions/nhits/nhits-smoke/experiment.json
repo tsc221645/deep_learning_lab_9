@@ -1,0 +1,64 @@
+{
+  "model": "NHITS",
+  "config_id": "nhits-smoke",
+  "seed": 42,
+  "L": 168,
+  "H": 24,
+  "history_months": 3,
+  "normalization": "per_series",
+  "params_total": 4193826,
+  "params_trainable": 4193826,
+  "train_time_s": 34.546514399989974,
+  "inference_time_s": 0.08307470002910122,
+  "gpu_peak_mb": 173.968,
+  "hardware": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.13.3",
+    "torch": "2.11.0+cu128",
+    "cuda": "12.8",
+    "device": "cuda"
+  },
+  "metrics": {
+    "n_observations": 192,
+    "n_series": 8,
+    "mae": 17.828452094493063,
+    "rmse": 30.10094934749173,
+    "wape_pct": 24.010491402284707,
+    "mape_pct": 34.59427248116606,
+    "mape_excluded_count": 0,
+    "mase": 2.0597243233329796,
+    "mase_undefined_series_count": 0
+  },
+  "fit_count": 1,
+  "fit_metadata": {
+    "library": "neuralforecast",
+    "model": "NHITS",
+    "validation_used": true,
+    "scaler_fit_end_exclusive": "2014-07-01T00:00:00",
+    "calendar_columns": [
+      "hour_sin",
+      "hour_cos",
+      "weekday_sin",
+      "weekday_cos",
+      "month_sin",
+      "month_cos",
+      "is_holiday"
+    ],
+    "batch_size": 8,
+    "valid_batch_size": 2,
+    "windows_batch_size": 8,
+    "inference_windows_batch_size": 8,
+    "training_log": "outputs\\smoke_b\\models\\NHITS\\nhits-smoke\\metrics.csv"
+  },
+  "refit_train_validation": false,
+  "best_epoch": null,
+  "artifacts": {
+    "predictions": "outputs\\smoke_b\\predictions\\nhits\\nhits-smoke\\predictions.parquet",
+    "metrics": "outputs\\smoke_b\\predictions\\nhits\\nhits-smoke\\metrics.json",
+    "by_client": "outputs\\smoke_b\\predictions\\nhits\\nhits-smoke\\metrics_by_client.csv",
+    "by_horizon": "outputs\\smoke_b\\predictions\\nhits\\nhits-smoke\\metrics_by_horizon.csv",
+    "by_hour": "outputs\\smoke_b\\predictions\\nhits\\nhits-smoke\\metrics_by_hour.csv",
+    "christmas_week": "outputs\\smoke_b\\predictions\\nhits\\nhits-smoke\\metrics_christmas_week.csv",
+    "experiment": "outputs\\smoke_b\\predictions\\nhits\\nhits-smoke\\experiment.json"
+  }
+}

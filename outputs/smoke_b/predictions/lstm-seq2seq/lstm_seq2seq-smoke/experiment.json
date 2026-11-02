@@ -1,0 +1,55 @@
+{
+  "model": "LSTM-Seq2Seq",
+  "config_id": "lstm_seq2seq-smoke",
+  "seed": 42,
+  "L": 168,
+  "H": 24,
+  "history_months": 3,
+  "normalization": "per_series",
+  "params_total": 104513,
+  "params_trainable": 104513,
+  "train_time_s": 1.219462500012014,
+  "inference_time_s": 0.011072900029830635,
+  "gpu_peak_mb": 33.375,
+  "hardware": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.13.3",
+    "torch": "2.11.0+cu128",
+    "cuda": "12.8",
+    "device": "cuda"
+  },
+  "metrics": {
+    "n_observations": 192,
+    "n_series": 8,
+    "mae": 14.914699034154296,
+    "rmse": 26.757162698179833,
+    "wape_pct": 20.086390620408388,
+    "mape_pct": 37.79354600744369,
+    "mape_excluded_count": 0,
+    "mase": 1.6608259367622953,
+    "mase_undefined_series_count": 0
+  },
+  "fit_count": 1,
+  "fit_metadata": {
+    "best_epoch": 1,
+    "best_validation_loss": 16.136906012892723,
+    "epochs_trained": 1,
+    "train_windows_per_client": 8,
+    "validation_windows_per_client": 92,
+    "normalization": "per_series",
+    "device": "cuda",
+    "training_log": "outputs\\smoke_b\\models\\lstm-seq2seq\\lstm_seq2seq-smoke\\training_log.csv",
+    "checkpoint": "outputs\\smoke_b\\models\\lstm-seq2seq\\lstm_seq2seq-smoke\\model_state.pt"
+  },
+  "refit_train_validation": false,
+  "best_epoch": null,
+  "artifacts": {
+    "predictions": "outputs\\smoke_b\\predictions\\lstm-seq2seq\\lstm_seq2seq-smoke\\predictions.parquet",
+    "metrics": "outputs\\smoke_b\\predictions\\lstm-seq2seq\\lstm_seq2seq-smoke\\metrics.json",
+    "by_client": "outputs\\smoke_b\\predictions\\lstm-seq2seq\\lstm_seq2seq-smoke\\metrics_by_client.csv",
+    "by_horizon": "outputs\\smoke_b\\predictions\\lstm-seq2seq\\lstm_seq2seq-smoke\\metrics_by_horizon.csv",
+    "by_hour": "outputs\\smoke_b\\predictions\\lstm-seq2seq\\lstm_seq2seq-smoke\\metrics_by_hour.csv",
+    "christmas_week": "outputs\\smoke_b\\predictions\\lstm-seq2seq\\lstm_seq2seq-smoke\\metrics_christmas_week.csv",
+    "experiment": "outputs\\smoke_b\\predictions\\lstm-seq2seq\\lstm_seq2seq-smoke\\experiment.json"
+  }
+}

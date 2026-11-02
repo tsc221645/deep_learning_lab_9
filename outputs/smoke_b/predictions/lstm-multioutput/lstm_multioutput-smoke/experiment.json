@@ -1,0 +1,55 @@
+{
+  "model": "LSTM-MultiOutput",
+  "config_id": "lstm_multioutput-smoke",
+  "seed": 42,
+  "L": 168,
+  "H": 24,
+  "history_months": 3,
+  "normalization": "per_series",
+  "params_total": 68696,
+  "params_trainable": 68696,
+  "train_time_s": 0.3004796000313945,
+  "inference_time_s": 0.004893900011666119,
+  "gpu_peak_mb": 32.63,
+  "hardware": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.13.3",
+    "torch": "2.11.0+cu128",
+    "cuda": "12.8",
+    "device": "cuda"
+  },
+  "metrics": {
+    "n_observations": 192,
+    "n_series": 8,
+    "mae": 14.837457299379452,
+    "rmse": 26.35964377460629,
+    "wape_pct": 19.982365212095914,
+    "mape_pct": 35.81338282444704,
+    "mape_excluded_count": 0,
+    "mase": 1.6452114789987924,
+    "mase_undefined_series_count": 0
+  },
+  "fit_count": 1,
+  "fit_metadata": {
+    "best_epoch": 1,
+    "best_validation_loss": 16.15099510550499,
+    "epochs_trained": 1,
+    "train_windows_per_client": 8,
+    "validation_windows_per_client": 92,
+    "normalization": "per_series",
+    "device": "cuda",
+    "training_log": "outputs\\smoke_b\\models\\lstm-multioutput\\lstm_multioutput-smoke\\training_log.csv",
+    "checkpoint": "outputs\\smoke_b\\models\\lstm-multioutput\\lstm_multioutput-smoke\\model_state.pt"
+  },
+  "refit_train_validation": false,
+  "best_epoch": null,
+  "artifacts": {
+    "predictions": "outputs\\smoke_b\\predictions\\lstm-multioutput\\lstm_multioutput-smoke\\predictions.parquet",
+    "metrics": "outputs\\smoke_b\\predictions\\lstm-multioutput\\lstm_multioutput-smoke\\metrics.json",
+    "by_client": "outputs\\smoke_b\\predictions\\lstm-multioutput\\lstm_multioutput-smoke\\metrics_by_client.csv",
+    "by_horizon": "outputs\\smoke_b\\predictions\\lstm-multioutput\\lstm_multioutput-smoke\\metrics_by_horizon.csv",
+    "by_hour": "outputs\\smoke_b\\predictions\\lstm-multioutput\\lstm_multioutput-smoke\\metrics_by_hour.csv",
+    "christmas_week": "outputs\\smoke_b\\predictions\\lstm-multioutput\\lstm_multioutput-smoke\\metrics_christmas_week.csv",
+    "experiment": "outputs\\smoke_b\\predictions\\lstm-multioutput\\lstm_multioutput-smoke\\experiment.json"
+  }
+}

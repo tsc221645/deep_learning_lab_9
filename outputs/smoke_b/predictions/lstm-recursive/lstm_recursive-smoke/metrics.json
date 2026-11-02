@@ -1,0 +1,11 @@
+{
+  "n_observations": 192,
+  "n_series": 8,
+  "mae": 15.07005576943907,
+  "rmse": 27.057432261518798,
+  "wape_pct": 20.295617508815276,
+  "mape_pct": 37.739112264427604,
+  "mape_excluded_count": 0,
+  "mase": 1.6759062319897502,
+  "mase_undefined_series_count": 0
+}

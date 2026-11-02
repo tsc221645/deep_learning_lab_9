@@ -1,0 +1,55 @@
+{
+  "model": "NLinear",
+  "config_id": "nlinear-L168-per_series-h30-smoke",
+  "seed": 42,
+  "L": 168,
+  "H": 24,
+  "history_months": 30,
+  "normalization": "per_series",
+  "params_total": 4056,
+  "params_trainable": 4056,
+  "train_time_s": 0.484657299995888,
+  "inference_time_s": 0.0343635000026552,
+  "gpu_peak_mb": 21.557,
+  "hardware": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.13.3",
+    "torch": "2.11.0+cu128",
+    "cuda": "12.8",
+    "device": "cuda"
+  },
+  "metrics": {
+    "n_observations": 192,
+    "n_series": 8,
+    "mae": 18.043171094449253,
+    "rmse": 32.308501546050174,
+    "wape_pct": 24.299664499030868,
+    "mape_pct": 36.720629517911114,
+    "mape_excluded_count": 0,
+    "mase": 1.660207853240281,
+    "mase_undefined_series_count": 0
+  },
+  "fit_count": 1,
+  "fit_metadata": {
+    "best_epoch": 1,
+    "best_validation_loss": 0.8861019455868265,
+    "epochs_trained": 1,
+    "train_windows_per_client": 8,
+    "validation_windows_per_client": 92,
+    "normalization": "per_series",
+    "device": "cuda",
+    "training_log": "outputs\\models\\phase4\\nlinear\\nlinear-L168-per_series-h30-smoke\\training_log.csv",
+    "checkpoint": "outputs\\models\\phase4\\nlinear\\nlinear-L168-per_series-h30-smoke\\model_state.pt"
+  },
+  "refit_train_validation": false,
+  "best_epoch": null,
+  "artifacts": {
+    "predictions": "outputs\\predictions\\nlinear\\nlinear-L168-per_series-h30-smoke\\predictions.parquet",
+    "metrics": "outputs\\predictions\\nlinear\\nlinear-L168-per_series-h30-smoke\\metrics.json",
+    "by_client": "outputs\\predictions\\nlinear\\nlinear-L168-per_series-h30-smoke\\metrics_by_client.csv",
+    "by_horizon": "outputs\\predictions\\nlinear\\nlinear-L168-per_series-h30-smoke\\metrics_by_horizon.csv",
+    "by_hour": "outputs\\predictions\\nlinear\\nlinear-L168-per_series-h30-smoke\\metrics_by_hour.csv",
+    "christmas_week": "outputs\\predictions\\nlinear\\nlinear-L168-per_series-h30-smoke\\metrics_christmas_week.csv",
+    "experiment": "outputs\\predictions\\nlinear\\nlinear-L168-per_series-h30-smoke\\experiment.json"
+  }
+}

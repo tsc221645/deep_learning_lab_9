@@ -1,0 +1,47 @@
+{
+  "model": "Chronos-Bolt",
+  "config_id": "chronos-smoke",
+  "seed": 42,
+  "L": 168,
+  "H": 24,
+  "history_months": 3,
+  "normalization": "raw",
+  "params_total": 47718016,
+  "params_trainable": 0,
+  "train_time_s": 0.0,
+  "inference_time_s": 13.094432300014887,
+  "gpu_peak_mb": 194.43,
+  "hardware": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.13.3",
+    "torch": "2.11.0+cu128",
+    "cuda": "12.8",
+    "device": "cuda"
+  },
+  "metrics": {
+    "n_observations": 192,
+    "n_series": 8,
+    "mae": 3.7622097935527563,
+    "rmse": 8.01163683022484,
+    "wape_pct": 5.066761007793385,
+    "mape_pct": 7.788395435958469,
+    "mape_excluded_count": 0,
+    "mase": 0.46572475778501365,
+    "mase_undefined_series_count": 0
+  },
+  "fit_count": 0,
+  "fit_metadata": {
+    "fit_skipped": "zero-shot adapter has no fit method"
+  },
+  "refit_train_validation": false,
+  "best_epoch": null,
+  "artifacts": {
+    "predictions": "outputs\\smoke_b\\predictions\\chronos-bolt\\chronos-smoke\\predictions.parquet",
+    "metrics": "outputs\\smoke_b\\predictions\\chronos-bolt\\chronos-smoke\\metrics.json",
+    "by_client": "outputs\\smoke_b\\predictions\\chronos-bolt\\chronos-smoke\\metrics_by_client.csv",
+    "by_horizon": "outputs\\smoke_b\\predictions\\chronos-bolt\\chronos-smoke\\metrics_by_horizon.csv",
+    "by_hour": "outputs\\smoke_b\\predictions\\chronos-bolt\\chronos-smoke\\metrics_by_hour.csv",
+    "christmas_week": "outputs\\smoke_b\\predictions\\chronos-bolt\\chronos-smoke\\metrics_christmas_week.csv",
+    "experiment": "outputs\\smoke_b\\predictions\\chronos-bolt\\chronos-smoke\\experiment.json"
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "model": "AutoETS24",
+  "config_id": "auto_ets-h30-smoke",
+  "seed": 42,
+  "L": 168,
+  "H": 24,
+  "history_months": 30,
+  "normalization": "raw",
+  "params_total": null,
+  "params_trainable": null,
+  "train_time_s": 85.79091700000572,
+  "inference_time_s": 0.007171999997808598,
+  "gpu_peak_mb": "N/A",
+  "hardware": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.13.3",
+    "torch": "2.15.0+cpu",
+    "cuda": "N/A",
+    "device": "cpu"
+  },
+  "metrics": {
+    "n_observations": 192,
+    "n_series": 8,
+    "mae": 4.91589709015966,
+    "rmse": 9.167489259109928,
+    "wape_pct": 6.620490898043445,
+    "mape_pct": 11.13287062046872,
+    "mape_excluded_count": 0,
+    "mase": 0.44582344159882514,
+    "mase_undefined_series_count": 0
+  },
+  "fit_count": 1,
+  "fit_metadata": {
+    "implementation": "statsforecast",
+    "model": "AutoETS24",
+    "season_length": 24,
+    "ets_model": "AAA",
+    "fit_end_exclusive": "2014-07-01T00:00:00",
+    "validation_used_for_fitting": false
+  },
+  "refit_train_validation": false,
+  "best_epoch": null,
+  "artifacts": {
+    "predictions": "outputs\\predictions\\autoets24\\auto_ets-h30-smoke\\predictions.parquet",
+    "metrics": "outputs\\predictions\\autoets24\\auto_ets-h30-smoke\\metrics.json",
+    "by_client": "outputs\\predictions\\autoets24\\auto_ets-h30-smoke\\metrics_by_client.csv",
+    "by_horizon": "outputs\\predictions\\autoets24\\auto_ets-h30-smoke\\metrics_by_horizon.csv",
+    "by_hour": "outputs\\predictions\\autoets24\\auto_ets-h30-smoke\\metrics_by_hour.csv",
+    "christmas_week": "outputs\\predictions\\autoets24\\auto_ets-h30-smoke\\metrics_christmas_week.csv",
+    "experiment": "outputs\\predictions\\autoets24\\auto_ets-h30-smoke\\experiment.json"
+  }
+}

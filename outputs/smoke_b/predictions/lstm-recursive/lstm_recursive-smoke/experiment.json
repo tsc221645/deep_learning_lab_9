@@ -1,0 +1,55 @@
+{
+  "model": "LSTM-Recursive",
+  "config_id": "lstm_recursive-smoke",
+  "seed": 42,
+  "L": 168,
+  "H": 24,
+  "history_months": 3,
+  "normalization": "per_series",
+  "params_total": 67649,
+  "params_trainable": 67649,
+  "train_time_s": 2.830845999997109,
+  "inference_time_s": 0.008041099994443357,
+  "gpu_peak_mb": 30.739,
+  "hardware": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.13.3",
+    "torch": "2.11.0+cu128",
+    "cuda": "12.8",
+    "device": "cuda"
+  },
+  "metrics": {
+    "n_observations": 192,
+    "n_series": 8,
+    "mae": 15.07005576943907,
+    "rmse": 27.057432261518798,
+    "wape_pct": 20.295617508815276,
+    "mape_pct": 37.739112264427604,
+    "mape_excluded_count": 0,
+    "mase": 1.6759062319897502,
+    "mase_undefined_series_count": 0
+  },
+  "fit_count": 1,
+  "fit_metadata": {
+    "best_epoch": 1,
+    "best_validation_loss": 16.067842442704283,
+    "epochs_trained": 1,
+    "train_windows_per_client": 8,
+    "validation_windows_per_client": 92,
+    "normalization": "per_series",
+    "device": "cuda",
+    "training_log": "outputs\\smoke_b\\models\\lstm-recursive\\lstm_recursive-smoke\\training_log.csv",
+    "checkpoint": "outputs\\smoke_b\\models\\lstm-recursive\\lstm_recursive-smoke\\model_state.pt"
+  },
+  "refit_train_validation": false,
+  "best_epoch": null,
+  "artifacts": {
+    "predictions": "outputs\\smoke_b\\predictions\\lstm-recursive\\lstm_recursive-smoke\\predictions.parquet",
+    "metrics": "outputs\\smoke_b\\predictions\\lstm-recursive\\lstm_recursive-smoke\\metrics.json",
+    "by_client": "outputs\\smoke_b\\predictions\\lstm-recursive\\lstm_recursive-smoke\\metrics_by_client.csv",
+    "by_horizon": "outputs\\smoke_b\\predictions\\lstm-recursive\\lstm_recursive-smoke\\metrics_by_horizon.csv",
+    "by_hour": "outputs\\smoke_b\\predictions\\lstm-recursive\\lstm_recursive-smoke\\metrics_by_hour.csv",
+    "christmas_week": "outputs\\smoke_b\\predictions\\lstm-recursive\\lstm_recursive-smoke\\metrics_christmas_week.csv",
+    "experiment": "outputs\\smoke_b\\predictions\\lstm-recursive\\lstm_recursive-smoke\\experiment.json"
+  }
+}

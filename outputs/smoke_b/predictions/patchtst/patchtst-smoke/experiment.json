@@ -1,0 +1,56 @@
+{
+  "model": "PatchTST",
+  "config_id": "patchtst-smoke",
+  "seed": 42,
+  "L": 168,
+  "H": 24,
+  "history_months": 3,
+  "normalization": "per_series",
+  "params_total": 466843,
+  "params_trainable": 466840,
+  "train_time_s": 28.600596499978565,
+  "inference_time_s": 0.07030270004179329,
+  "gpu_peak_mb": 52.26,
+  "hardware": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.13.3",
+    "torch": "2.11.0+cu128",
+    "cuda": "12.8",
+    "device": "cuda"
+  },
+  "metrics": {
+    "n_observations": 192,
+    "n_series": 8,
+    "mae": 11.01092064679679,
+    "rmse": 21.558723491487058,
+    "wape_pct": 14.828971921954778,
+    "mape_pct": 23.44578424706317,
+    "mape_excluded_count": 0,
+    "mase": 1.4387673427095995,
+    "mase_undefined_series_count": 0
+  },
+  "fit_count": 1,
+  "fit_metadata": {
+    "library": "neuralforecast",
+    "model": "PatchTST",
+    "validation_used": true,
+    "scaler_fit_end_exclusive": "2014-07-01T00:00:00",
+    "calendar_columns": [],
+    "batch_size": 8,
+    "valid_batch_size": 2,
+    "windows_batch_size": 8,
+    "inference_windows_batch_size": 8,
+    "training_log": "outputs\\smoke_b\\models\\PatchTST\\patchtst-smoke\\metrics.csv"
+  },
+  "refit_train_validation": false,
+  "best_epoch": null,
+  "artifacts": {
+    "predictions": "outputs\\smoke_b\\predictions\\patchtst\\patchtst-smoke\\predictions.parquet",
+    "metrics": "outputs\\smoke_b\\predictions\\patchtst\\patchtst-smoke\\metrics.json",
+    "by_client": "outputs\\smoke_b\\predictions\\patchtst\\patchtst-smoke\\metrics_by_client.csv",
+    "by_horizon": "outputs\\smoke_b\\predictions\\patchtst\\patchtst-smoke\\metrics_by_horizon.csv",
+    "by_hour": "outputs\\smoke_b\\predictions\\patchtst\\patchtst-smoke\\metrics_by_hour.csv",
+    "christmas_week": "outputs\\smoke_b\\predictions\\patchtst\\patchtst-smoke\\metrics_christmas_week.csv",
+    "experiment": "outputs\\smoke_b\\predictions\\patchtst\\patchtst-smoke\\experiment.json"
+  }
+}

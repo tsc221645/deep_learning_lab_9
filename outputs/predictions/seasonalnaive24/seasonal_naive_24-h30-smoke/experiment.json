@@ -1,0 +1,52 @@
+{
+  "model": "SeasonalNaive24",
+  "config_id": "seasonal_naive_24-h30-smoke",
+  "seed": 42,
+  "L": 168,
+  "H": 24,
+  "history_months": 30,
+  "normalization": "raw",
+  "params_total": null,
+  "params_trainable": null,
+  "train_time_s": 0.0011696000001393259,
+  "inference_time_s": 0.0018734000041149557,
+  "gpu_peak_mb": "N/A",
+  "hardware": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.13.3",
+    "torch": "2.15.0+cpu",
+    "cuda": "N/A",
+    "device": "cpu"
+  },
+  "metrics": {
+    "n_observations": 192,
+    "n_series": 8,
+    "mae": 4.255156551798184,
+    "rmse": 8.02844335396521,
+    "wape_pct": 5.7306377054396105,
+    "mape_pct": 9.66416289623235,
+    "mape_excluded_count": 0,
+    "mase": 0.39395596522135423,
+    "mase_undefined_series_count": 0
+  },
+  "fit_count": 1,
+  "fit_metadata": {
+    "implementation": "statsforecast",
+    "model": "SeasonalNaive24",
+    "season_length": 24,
+    "ets_model": null,
+    "fit_end_exclusive": "2014-07-01T00:00:00",
+    "validation_used_for_fitting": false
+  },
+  "refit_train_validation": false,
+  "best_epoch": null,
+  "artifacts": {
+    "predictions": "outputs\\predictions\\seasonalnaive24\\seasonal_naive_24-h30-smoke\\predictions.parquet",
+    "metrics": "outputs\\predictions\\seasonalnaive24\\seasonal_naive_24-h30-smoke\\metrics.json",
+    "by_client": "outputs\\predictions\\seasonalnaive24\\seasonal_naive_24-h30-smoke\\metrics_by_client.csv",
+    "by_horizon": "outputs\\predictions\\seasonalnaive24\\seasonal_naive_24-h30-smoke\\metrics_by_horizon.csv",
+    "by_hour": "outputs\\predictions\\seasonalnaive24\\seasonal_naive_24-h30-smoke\\metrics_by_hour.csv",
+    "christmas_week": "outputs\\predictions\\seasonalnaive24\\seasonal_naive_24-h30-smoke\\metrics_christmas_week.csv",
+    "experiment": "outputs\\predictions\\seasonalnaive24\\seasonal_naive_24-h30-smoke\\experiment.json"
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "model": "MLP",
+  "config_id": "mlp-L168-per_series-h30-smoke",
+  "seed": 42,
+  "L": 168,
+  "H": 24,
+  "history_months": 30,
+  "normalization": "per_series",
+  "params_total": 50264,
+  "params_trainable": 50264,
+  "train_time_s": 3.8195102000026964,
+  "inference_time_s": 0.06386970001040027,
+  "gpu_peak_mb": 24.1,
+  "hardware": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.13.3",
+    "torch": "2.11.0+cu128",
+    "cuda": "12.8",
+    "device": "cuda"
+  },
+  "metrics": {
+    "n_observations": 192,
+    "n_series": 8,
+    "mae": 16.557760668782922,
+    "rmse": 27.990177532252932,
+    "wape_pct": 22.299186046650703,
+    "mape_pct": 82.31578860245668,
+    "mape_excluded_count": 0,
+    "mase": 1.8642716790966907,
+    "mase_undefined_series_count": 0
+  },
+  "fit_count": 1,
+  "fit_metadata": {
+    "best_epoch": 1,
+    "best_validation_loss": 0.9790620752002882,
+    "epochs_trained": 1,
+    "train_windows_per_client": 8,
+    "validation_windows_per_client": 92,
+    "normalization": "per_series",
+    "device": "cuda",
+    "training_log": "outputs\\models\\phase4\\mlp\\mlp-L168-per_series-h30-smoke\\training_log.csv",
+    "checkpoint": "outputs\\models\\phase4\\mlp\\mlp-L168-per_series-h30-smoke\\model_state.pt"
+  },
+  "refit_train_validation": false,
+  "best_epoch": null,
+  "artifacts": {
+    "predictions": "outputs\\predictions\\mlp\\mlp-L168-per_series-h30-smoke\\predictions.parquet",
+    "metrics": "outputs\\predictions\\mlp\\mlp-L168-per_series-h30-smoke\\metrics.json",
+    "by_client": "outputs\\predictions\\mlp\\mlp-L168-per_series-h30-smoke\\metrics_by_client.csv",
+    "by_horizon": "outputs\\predictions\\mlp\\mlp-L168-per_series-h30-smoke\\metrics_by_horizon.csv",
+    "by_hour": "outputs\\predictions\\mlp\\mlp-L168-per_series-h30-smoke\\metrics_by_hour.csv",
+    "christmas_week": "outputs\\predictions\\mlp\\mlp-L168-per_series-h30-smoke\\metrics_christmas_week.csv",
+    "experiment": "outputs\\predictions\\mlp\\mlp-L168-per_series-h30-smoke\\experiment.json"
+  }
+}
