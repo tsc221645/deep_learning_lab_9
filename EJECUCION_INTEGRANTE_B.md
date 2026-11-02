@@ -1,6 +1,6 @@
 # Traspaso para ejecutar el bloque del integrante B
 
-**Estado: preparado para continuar las comprobaciones; todavía no validado para una corrida completa ni listo para entregar.** Este documento registra lo observado hasta el 31 de octubre de 2026. Las corridas largas y el informe final requieren resultados reales.
+**Estado: código integrado y smoke verificado; todavía no validado para una corrida completa ni listo para entregar.** Actualizado el 1 de noviembre de 2026. Los resultados completos y el informe final requieren la corrida de los experimentos pendientes.
 
 ## Qué se hizo
 
@@ -8,29 +8,30 @@
 - Se añadieron comandos para selección en validación, evaluación con el backtest común, sensibilidad a historia, comparación local/global, tres semillas, reentrenamiento mensual y generación de tablas/figuras.
 - Se corrigieron el nombre `AutoETS24` en la comparación final, identificadores repetidos de fase 4, la ventana expandible de los reajustes mensuales y la comparación de los valores `y_true` entre modelos. Se fijó `torchvision==0.26.0+cu128` junto con `torch==2.11.0+cu128` y se fijó el idioma portugués de los feriados.
 - Después de observar falta de memoria GPU en TFT y DeepAR, se limitaron `windows_batch_size`, `inference_windows_batch_size` y `valid_batch_size` en el adaptador NeuralForecast y en el smoke. **Este último cambio aún no se ha probado.**
+- Se corrigió `.gitignore`, que ignoraba todos los Markdown, y se restauraron `docs/fase3_evaluacion.md` y `docs/fase4_modelos.md`. Ambos documentos habían desaparecido en un commit anterior.
 
 ## Resultados observados, sin confundir smoke con resultados finales
 
 | Comprobación | Resultado comunicado por el primer ejecutor |
 |---|---|
-| `python -m pytest -q` antes del último cambio de lotes | 42 pruebas pasadas en 21.70 s |
-| Fase 4 `--smoke` | 8 modelos produjeron 192 predicciones cada uno, con 8 clientes y 1 origen |
-| LSTM recursiva, multi-salida y seq2seq `smoke_b` | 192 predicciones por estrategia |
-| N-HiTS, TCN, PatchTST `smoke_b` | 192 predicciones por modelo |
-| TFT `smoke_b`, configuración anterior | `torch.OutOfMemoryError` al intentar reservar 576 MiB adicionales en GPU de 4 GiB |
-| DeepAR `smoke_b`, configuración anterior | `torch.OutOfMemoryError` durante validación; intento de reserva de 29.82 GiB |
-| TFT y DeepAR después de limitar lotes | **Pendiente de comprobar** |
-| Chronos-Bolt `smoke_b` | **Pendiente de comprobar** |
+| `python -m pytest -q` en el checkout anterior | 43 pruebas pasadas en 58.23 s |
+| Fase 4 `--smoke` | 8 modelos, 192 predicciones cada uno, 8 clientes y 1 origen; cinco metadatos registran CPU y tres CUDA |
+| Tres estrategias LSTM `smoke_b` | 192 predicciones por estrategia, CUDA; artefactos escritos, pero el proceso terminó con código Windows `-1073740791` |
+| NHITS, TCN, PatchTST y TFT `smoke_b` | 192 predicciones por modelo, GPU CUDA |
+| DeepAR `smoke_b` con lotes reducidos | 192 predicciones y cuantiles válidos, CUDA; el proceso terminó con código Windows `-1073740791` después de imprimir el resumen |
+| Chronos-Bolt `smoke_b` | 192 predicciones, GPU CUDA; ejecución terminó correctamente |
+| Baselines Naive, SeasonalNaive24, SeasonalNaive168, AutoETS24 y LightGBM-direct | 192 predicciones cada uno; metadatos registran CPU |
 | Fases 4–8 completas | **No ejecutadas** |
+| Informe PDF final | **No generado**, faltan resultados de prueba completos |
 
-El fallo reportado fue **memoria de GPU (VRAM)**, no espacio libre en disco. Los avisos sobre `triton` y FLOPs no son la causa del fallo. Los valores de MAE/MASE de los smoke no sirven para comparar modelos: usan un solo origen y entrenamiento mínimo.
+Las pruebas ocurrieron en una RTX 3050 con 8 GiB de VRAM. Los resultados de smoke no sirven para comparar modelos: usan un solo origen, ocho clientes y entrenamiento mínimo. Los cinco baselines Naive, SeasonalNaive24/168, AutoETS24 y LightGBM-direct registran CPU; los adaptadores actuales no tienen una ruta CUDA para ellos. Por tanto, no se puede afirmar que todos los modelos corrieron en GPU. Los errores de salida de Windows en los comandos LSTM y DeepAR ocurrieron después de producir predicciones, pero requieren diagnóstico antes de considerar esos procesos limpios.
 
 ## Archivos que debe recibir la persona que ejecutará
 
 1. **Todo el código actualizado del repositorio**, incluidos los archivos aún sin commit. Un clon de GitHub no los tendrá hasta que se confirmen y publiquen; alternativamente, enviar un ZIP del proyecto. No incluir `.venv/`, cachés ni credenciales.
 2. `data/processed/hourly.parquet` y `data/processed/client_ids.csv`, juntos. El panel local existe y mide aproximadamente 85 MB; el listado fija 370 clientes. Ambos deben corresponder a la misma auditoría `data/processed/dataset_audit.json`.
 3. Si no se transfiere el panel procesado, la persona tendrá que descargar y procesar `LD2011_2014.txt` con los comandos de abajo. El texto bruto local mide aproximadamente 711 MB y está ignorado por Git.
-4. Los resultados completos de A para fase 4 **no están en este checkout**. La persona deberá obtenerlos de A o ejecutar `python -m src.experiments.phase4` antes de la comparación final. Los smoke no sustituyen esos resultados.
+4. Los resultados completos de A para fase 4 **no están en este checkout**. Se deben obtener de A o ejecutar `python -m src.experiments.phase4` antes de la comparación final. Los smoke no sustituyen esos resultados.
 
 Los datos procesados y la mayoría de `outputs/` están ignorados por Git. Hay que transferirlos aparte o guardarlos como artefactos de la plataforma remota.
 
@@ -80,11 +81,11 @@ Omitir `phase4` únicamente si se reciben sus pronósticos, métricas y metadato
 
 ## Qué falta antes de afirmar “listo para entregar”
 
-- Confirmar de nuevo pruebas y smoke para TFT, DeepAR y Chronos tras los cambios recientes. No hay evidencia aún de que TFT/DeepAR completos quepan en la GPU de destino.
+- Diagnosticar por qué las ejecuciones LSTM y DeepAR generan predicciones, pero terminan con código Windows `-1073740791`.
 - Ejecutar las fases con todos los clientes congelados, 92 orígenes diarios y 24 horas por origen; verificar que el número de predicciones, IDs, fechas y `y_true` coincidan en todos los modelos.
 - Revisar los registros por epoch de NeuralForecast: el requisito pide loss, MAE y MASE de validación y tiempo por epoch; el logger actual no acredita todavía todos esos campos.
 - Revisar la selección metodológica: las variantes de historia de fase 7 y las múltiples configuraciones de fase 4 llegan a prueba; no usar sus métricas de test para escoger hiperparámetros. Documentar qué configuraciones se fijaron con validación.
-- Analizar resultados, Navidad/Año Nuevo, costo, estrategias, cuantiles, comparación local/global y sensibilidad a semillas con cifras reales. `phase8` genera un **borrador**, no un informe final. Falta convertirlo en PDF de máximo 5 páginas e incluir el enlace Git real al final.
+- Analizar resultados, Navidad/Año Nuevo, costo, estrategias, cuantiles, comparación local/global y sensibilidad a semillas con cifras reales. `phase8` genera un **borrador**, no un informe final. Falta validarlo, convertirlo en PDF de máximo 5 páginas e incluir el enlace Git real al final.
 
 ## Qué devolver al integrar resultados
 

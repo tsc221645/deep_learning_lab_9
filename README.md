@@ -83,57 +83,41 @@ python -m src.experiments.phase4
 
 Usa `--smoke` para una comprobación rápida, no para reportar métricas finales. La entrega de interfaces y decisiones para la siguiente fase está en [HANDOFF_A_B.md](HANDOFF_A_B.md).
 
-## Trabajo del integrante B (preparado, sin ejecutar)
+## Trabajo del integrante B
 
-El estado observado, los fallos de VRAM y las instrucciones para otra persona
-están en [EJECUCION_INTEGRANTE_B.md](EJECUCION_INTEGRANTE_B.md).
+La fase 5 incluye tres estrategias LSTM. La fase 6 incluye NHITS, TCN,
+PatchTST, TFT, DeepAR y Chronos-Bolt. Las fases 7 y 8 tienen runners para
+sensibilidad, reajustes y comparaciones. El detalle está en
+[EJECUCION_INTEGRANTE_B.md](EJECUCION_INTEGRANTE_B.md).
 
-El panel `data/processed/hourly.parquet` existe localmente, pero está ignorado
-por Git y debe transferirse aparte. El repositorio no incluye los pronósticos y
-métricas completos de la fase 4. Tampoco están presentes los documentos `docs/fase3_evaluacion.md`
-y `docs/fase4_modelos.md` citados en el traspaso. Por tanto, las fases 1–4 tienen
-código y pruebas, pero su evaluación completa no está acreditada en este checkout.
+Las LSTM usan validación para elegir la configuración y las épocas; el
+backtest de prueba no selecciona hiperparámetros. Al entrenar en GPU, el
+adaptador PyTorch requiere CUDA y falla si no está disponible.
 
-Se añadieron las tres estrategias LSTM de la fase 5 (recursiva, multi-salida y
-seq2seq) y el adaptador zero-shot de Chronos-Bolt. El entrenamiento recursivo y
-seq2seq puede usar teacher forcing; validación y prueba realimentan únicamente
-pronósticos. La búsqueda de L usa la validación para elegir una configuración por
-estrategia y guarda esa elección antes de evaluar prueba. El backtest final
-reajusta con entrenamiento + validación usando el número de epochs elegido.
+Los smoke de fase 4 y de los modelos de B produjeron 192 predicciones por
+modelo, usando ocho clientes y un origen. Los metadatos registran CUDA en 12
+corridas y CPU en 5. Naive, SeasonalNaive, AutoETS y LightGBM usan
+implementaciones CPU en esta configuración y no tienen una ruta CUDA; por eso
+no se debe afirmar que todos los modelos corrieron en GPU. Esas corridas solo
+comprueban integración; no sirven para comparar modelos. La suite local actual
+tiene 46 pruebas aprobadas.
+Los resultados completos de prueba, las sensibilidades de fase 7 y el PDF final
+no se han generado.
 
-### Primera comprobación recomendada
+El informe de estado no sustituye al final. Para generarlo después de ejecutar
+las pruebas, usa `python -m src.experiments.report_status --tests-passed N`;
+el PDF y el Markdown quedan en `report/`.
 
-No iniciar aún todas las corridas. Primero confirmar Python 3.12/3.13 y una GPU CUDA,
-instalar dependencias, preparar el panel si no fue transferido y correr las pruebas
-y una integración pequeña. El primer ejecutor ya pasó 42 pruebas con Python 3.12.
+El panel `data/processed/hourly.parquet` y los artefactos grandes de `outputs/`
+se mantienen fuera de Git. Para generar las métricas finales, primero hay que
+ejecutar todas las etapas desde el panel congelado y conservar esos artefactos.
+Los documentos metodológicos de las fases 3 y 4 están en `docs/`.
+En Kaggle, sube el código actualizado y los datos procesados, activa GPU e
+Internet para Chronos y conserva `outputs/` entre sesiones.
 
-```powershell
-py -0p
-nvidia-smi
-python -m venv .venv
-$labPy = '.\.venv\Scripts\python.exe'
-& $labPy -m pip install -r requirements.txt
-& $labPy -m src.data.download --output-dir data/raw
-& $labPy -m src.data.preprocess --input data/raw/LD2011_2014.txt --output data/processed/hourly.parquet --audit-dir data/processed --seed 42
-& $labPy -m pytest -q
-& $labPy -m src.experiments.phase4 --smoke
-& $labPy -m src.experiments.smoke_b --models lstm_recursive
-```
+### Corrida completa
 
-`smoke_b` usa ocho clientes, un origen y entrenamiento mínimo. Para comprobar
-después un adaptador concreto, sustituye `lstm_recursive` por `nhits`, `tcn`,
-`patchtst`, `tft` o `deepar`. `chronos` descarga pesos públicos la primera vez;
-pruébalo preferentemente en Kaggle con Internet habilitado. Ninguna salida
-`--smoke` sirve como resultado final. Detente si falla cualquiera de los pasos
-y conserva el error completo; no continúes con la fase siguiente.
-
-Si ejecutas en Kaggle, copia o sube **este estado actualizado del repositorio**:
-los cambios locales sin commit no aparecen al clonar GitHub. Activa GPU e
-Internet y verifica `python --version` y CUDA antes de instalar las versiones
-fijadas. Guarda `data/processed/` y `outputs/` entre sesiones.
-
-Para reproducirlo en un entorno remoto con GPU CUDA, desde la raíz del proyecto
-y tras instalar `requirements.txt`, sigue este orden:
+Desde la raíz del proyecto, con GPU CUDA y dependencias instaladas:
 
 ```powershell
 python -m src.data.download --output-dir data/raw
@@ -151,11 +135,7 @@ python -m src.experiments.phase7 seeds
 python -m src.experiments.phase8
 ```
 
-Estos comandos de B no se han ejecutado ni verificado en este checkout. La fase
-8 exige resultados completos y se detiene si faltan modelos, clientes, fechas,
-cuantiles o los experimentos de historia. Genera CSV, figuras y un borrador en
-`report/informe_borrador.md`; ese borrador necesita interpretación humana, el
-enlace Git real y conversión/revisión a un PDF de cinco páginas como máximo.
-El notebook incluye las secciones de B con `RUN_EXPENSIVE = False` por defecto.
-No se deben presentar conclusiones finales hasta ejecutar y revisar los
-artefactos exigidos.
+La ejecución completa de estas etapas todavía está pendiente en este checkout.
+La fase 8 requiere sus resultados y genera un borrador; no debe tomarse como
+entrega final hasta validar las conclusiones y producir el PDF de cinco páginas
+como máximo.
