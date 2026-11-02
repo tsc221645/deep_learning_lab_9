@@ -1,0 +1,12 @@
+# Install the matching CUDA PyTorch pair separately as described in INSTRUCTIVO_KAGGLE3.md.
+numpy==2.2.6
+pandas==2.3.3
+matplotlib==3.10.0
+scikit-learn==1.9.1
+statsforecast==2.1.1
+neuralforecast==3.3.0
+lightgbm==4.7.0
+chronos-forecasting==2.3.2
+holidays==0.107
+pyarrow==26.0.0
+pytest==9.2.0

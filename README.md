@@ -17,7 +17,7 @@ python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 ```
 
-En Kaggle, instala las dependencias con `!pip install -r requirements.txt` y ejecuta los mismos módulos desde la raíz del proyecto. El procesamiento lee el archivo en bloques, así que no requiere cargar los 678 MB completos en memoria.
+En Kaggle, sigue [INSTRUCTIVO_KAGGLE3.md](INSTRUCTIVO_KAGGLE3.md) para instalar el par compatible de PyTorch y `requirements-kaggle.txt`. El procesamiento lee el archivo en bloques, así que no requiere cargar los 678 MB completos en memoria.
 
 ## Datos
 
@@ -85,6 +85,9 @@ Usa `--smoke` para una comprobación rápida, no para reportar métricas finales
 
 ## Trabajo del integrante B
 
+Para ejecutarlo por etapas y conservar resultados entre sesiones de Kaggle,
+sigue [INSTRUCTIVO_KAGGLE3.md](INSTRUCTIVO_KAGGLE3.md).
+
 La fase 5 incluye tres estrategias LSTM. La fase 6 incluye NHITS, TCN,
 PatchTST, TFT, DeepAR y Chronos-Bolt. Las fases 7 y 8 tienen runners para
 sensibilidad, reajustes y comparaciones. El detalle está en
@@ -116,6 +119,10 @@ En Kaggle, sube el código actualizado y los datos procesados, activa GPU e
 Internet para Chronos y conserva `outputs/` entre sesiones.
 
 ### Corrida completa
+
+El bloque siguiente enumera los módulos originales del proyecto y puede
+exceder una sesión de Kaggle; para una ejecución práctica utiliza la guía
+anterior, que separa configuraciones y explica los resultados faltantes de A.
 
 Desde la raíz del proyecto, con GPU CUDA y dependencias instaladas:
 
