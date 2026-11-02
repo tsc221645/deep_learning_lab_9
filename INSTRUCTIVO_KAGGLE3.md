@@ -2,7 +2,7 @@
 
 PlUS esta guía parte de la rama `kaggle3`, con el panel de 370 clientes y los adaptadores de B ya implementados.
 
-**Estado comprobado:** el pull trajo 46 pruebas aprobadas y artefactos `-smoke` de 8 clientes × 1 origen × 24 horas. No trajo los resultados completos de la fase 4. Las fases 5–7 pueden correrse ahora; la comparación final de fase 8 requiere recuperar de A los ocho experimentos principales o, como último recurso, ejecutar solo los que falten. **No ejecutes la fase 4 completa de 40 configuraciones.**
+**Estado comprobado:** el pull trajo 46 pruebas aprobadas y artefactos `-smoke` de 8 clientes × 1 origen × 24 horas. No trajo los resultados completos de la fase 4. Puedes generar ahora el informe exploratorio del paso 7 con esos smoke, sin entrenar modelos. Las fases 5–7 completas son una ruta posterior; la comparación final de fase 8 requiere recuperar de A los ocho experimentos principales o, como último recurso, ejecutar solo los que falten. **No ejecutes la fase 4 completa de 40 configuraciones.**
 
 ## 1. Publicar exactamente este código
 
@@ -158,7 +158,22 @@ Los comandos siguientes seleccionan modelos con validación y realizan reajustes
 !python -m src.experiments.phase7 seeds
 ```
 
-## 7. Fase 8: límite actual y salida final
+## 7. Fase 8 con los smoke que ya están disponibles
+
+Si decides cerrar el trabajo con los artefactos existentes, **no necesitas `phase4_summary.csv` ni volver a entrenar la fase 4**. En `kaggle3`, los 17 smoke ya están guardados en el repositorio. Desde la raíz del clon actualizado, ejecuta esta única celda después de instalar las dependencias:
+
+```python
+%cd /kaggle/working/deep_learning_lab_9
+!python -m src.experiments.phase8_smoke
+```
+
+El comando solo lee los `experiment.json` y `predictions.parquet` existentes. Comprueba que los 17 modelos tengan los mismos ocho clientes, el mismo origen, las mismas fechas y los mismos valores reales. Genera `outputs/metrics/comparison_smoke.csv`, `outputs/metrics/comparison_smoke_by_horizon.csv`, `outputs/figures/smoke/mae_smoke.png`, `report/informe_smoke.md` y `report/informe_smoke.pdf`. Descarga el PDF y el CSV desde el explorador de archivos de Kaggle o inclúyelos en el ZIP del paso 8.
+
+**Alcance:** esto es una comparación exploratoria de 8 clientes × 1 origen × 24 horas. La fase 4 smoke usó 30 meses de historia y los modelos de B usaron 3; el informe recalcula MAE, RMSE y WAPE, pero no mezcla los MASE guardados. No permite afirmar qué modelo gana en el laboratorio ni sustituye la evaluación pedida de 370 clientes y 92 orígenes. Tampoco cubre la sensibilidad y los reajustes de fase 7.
+
+Si solo quieres este informe exploratorio, puedes saltar las fases 5–7 completas de los pasos 4–6 y ejecutar directamente la celda anterior. No repitas los smoke: sus artefactos ya están en este repositorio.
+
+### Si más adelante recuperan resultados completos
 
 **No ejecutes todavía la fase 8** si no existen las predicciones completas de A. El código exige ocho experimentos principales de fase 4, además de B; los CSV `-smoke` del pull no cumplen esa condición. La primera opción es solicitar a A sus carpetas completas `outputs/predictions/` y `outputs/metrics/` y verificar que cada modelo tenga `experiment.json` y `predictions.parquet` con 370 clientes y 816 960 predicciones.
 

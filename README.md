@@ -98,11 +98,17 @@ backtest de prueba no selecciona hiperparámetros. Al entrenar en GPU, el
 adaptador PyTorch requiere CUDA y falla si no está disponible.
 
 Los smoke de fase 4 y de los modelos de B produjeron 192 predicciones por
-modelo, usando ocho clientes y un origen. Los metadatos registran CUDA en 12
+modelo, usando ocho clientes y un origen. Para generar una comparación
+**exploratoria** de esos artefactos, sin entrenar modelos ni requerir
+`phase4_summary.csv`, ejecuta `python -m src.experiments.phase8_smoke`.
+El comando escribe `outputs/metrics/comparison_smoke.csv` y
+`report/informe_smoke.md`/`report/informe_smoke.pdf`; verifica que los valores
+reales y fechas coincidan entre modelos. Los metadatos registran CUDA en 12
 corridas y CPU en 5. Naive, SeasonalNaive, AutoETS y LightGBM usan
 implementaciones CPU en esta configuración y no tienen una ruta CUDA; por eso
-no se debe afirmar que todos los modelos corrieron en GPU. Esas corridas solo
-comprueban integración; no sirven para comparar modelos. La suite local actual
+no se debe afirmar que todos los modelos corrieron en GPU. Esas corridas son
+solo una comprobación de integración; la comparación exploratoria no sirve
+para seleccionar un modelo final. La suite local actual
 tiene 46 pruebas aprobadas.
 Los resultados completos de prueba, las sensibilidades de fase 7 y el PDF final
 no se han generado.
