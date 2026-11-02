@@ -1,0 +1,2 @@
+experiment,model,config_id,lookback,horizon,history_months,normalization,params_total,params_trainable,train_time_s,inference_time_s,n_observations,n_series,mae,rmse,wape_pct,mape_pct,mape_excluded_count,mase,mase_undefined_series_count
+naive-h30,Naive,naive-h30,168,24,30,raw,,,2.8414535999763757,2.394582699984312,816960,370,195.80930398708065,1512.2178962182172,34.13361602386876,43.492780278532614,10024,4.575743756361172,1

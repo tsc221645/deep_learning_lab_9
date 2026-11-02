@@ -1,0 +1,2 @@
+experiment model config_id  lookback  horizon  history_months normalization params_total params_trainable  train_time_s  inference_time_s  n_observations  n_series        mae        rmse  wape_pct  mape_pct  mape_excluded_count     mase  mase_undefined_series_count
+ naive-h30 Naive naive-h30       168       24              30           raw         None             None      2.841454          2.394583          816960       370 195.809304 1512.217896 34.133616  43.49278                10024 4.575744                            1

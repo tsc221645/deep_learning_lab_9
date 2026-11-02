@@ -1,0 +1,52 @@
+{
+  "model": "SeasonalNaive168",
+  "config_id": "seasonal_naive_168-h12",
+  "seed": 42,
+  "L": 168,
+  "H": 24,
+  "history_months": 12,
+  "normalization": "raw",
+  "params_total": null,
+  "params_trainable": null,
+  "train_time_s": 0.09465739998267964,
+  "inference_time_s": 2.7959547999780625,
+  "gpu_peak_mb": 0.0,
+  "hardware": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.13.3",
+    "torch": "2.11.0+cu128",
+    "cuda": "12.8",
+    "device": "cuda"
+  },
+  "metrics": {
+    "n_observations": 816960,
+    "n_series": 370,
+    "mae": 59.48284535327393,
+    "rmse": 626.8443810981431,
+    "wape_pct": 10.369091569978618,
+    "mape_pct": 18.624715583406818,
+    "mape_excluded_count": 10024,
+    "mase": 1.1677735889805225,
+    "mase_undefined_series_count": 2
+  },
+  "fit_count": 1,
+  "fit_metadata": {
+    "implementation": "statsforecast",
+    "model": "SeasonalNaive168",
+    "season_length": 168,
+    "ets_model": null,
+    "fit_end_exclusive": "2014-07-01T00:00:00",
+    "validation_used_for_fitting": false
+  },
+  "refit_train_validation": false,
+  "best_epoch": null,
+  "artifacts": {
+    "predictions": "C:\\Users\\alambre1\\Documents\\UVG\\2026\\2026s2\\deep_learning\\lab9\\outputs\\parallel\\seasonal_naive_168\\predictions\\seasonalnaive168\\seasonal_naive_168-h12\\predictions.parquet",
+    "metrics": "C:\\Users\\alambre1\\Documents\\UVG\\2026\\2026s2\\deep_learning\\lab9\\outputs\\parallel\\seasonal_naive_168\\predictions\\seasonalnaive168\\seasonal_naive_168-h12\\metrics.json",
+    "by_client": "C:\\Users\\alambre1\\Documents\\UVG\\2026\\2026s2\\deep_learning\\lab9\\outputs\\parallel\\seasonal_naive_168\\predictions\\seasonalnaive168\\seasonal_naive_168-h12\\metrics_by_client.csv",
+    "by_horizon": "C:\\Users\\alambre1\\Documents\\UVG\\2026\\2026s2\\deep_learning\\lab9\\outputs\\parallel\\seasonal_naive_168\\predictions\\seasonalnaive168\\seasonal_naive_168-h12\\metrics_by_horizon.csv",
+    "by_hour": "C:\\Users\\alambre1\\Documents\\UVG\\2026\\2026s2\\deep_learning\\lab9\\outputs\\parallel\\seasonal_naive_168\\predictions\\seasonalnaive168\\seasonal_naive_168-h12\\metrics_by_hour.csv",
+    "christmas_week": "C:\\Users\\alambre1\\Documents\\UVG\\2026\\2026s2\\deep_learning\\lab9\\outputs\\parallel\\seasonal_naive_168\\predictions\\seasonalnaive168\\seasonal_naive_168-h12\\metrics_christmas_week.csv",
+    "experiment": "C:\\Users\\alambre1\\Documents\\UVG\\2026\\2026s2\\deep_learning\\lab9\\outputs\\parallel\\seasonal_naive_168\\predictions\\seasonalnaive168\\seasonal_naive_168-h12\\experiment.json"
+  }
+}
