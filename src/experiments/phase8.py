@@ -254,7 +254,8 @@ def make_figures(table: pd.DataFrame, directories: dict[str, Path],
     plt.close(fig)
 
 
-def write_report_draft(table: pd.DataFrame, output_dir: Path) -> Path:
+def write_report_draft(table: pd.DataFrame, output_dir: Path,
+                       repo_url: str | None = None) -> Path:
     """Write factual comparisons and leave interpretation for human review."""
     by_name = table.set_index("modelo")
     winner = table.iloc[0]
@@ -270,6 +271,9 @@ def write_report_draft(table: pd.DataFrame, output_dir: Path) -> Path:
     local = pd.read_csv(output_dir / "metrics" / "phase7_local_global.csv")
     monthly = pd.read_csv(output_dir / "metrics" / "phase7_monthly.csv")
     history = pd.read_csv(output_dir / "metrics" / "phase7_history.csv")
+    if len(seeds) != 3 or len(local) != 10 or len(monthly) != 2 or len(history) != 15:
+        raise ValueError("Phase 7 experiments are incomplete; expected 3 seeds, "
+                         "10 local clients, 2 monthly comparisons and 15 history rows")
     columns = ["modelo", "familia", "L", "MAE_kWh", "RMSE_kWh",
                "WAPE_pct", "MASE_H24", "entrenamiento_s", "inferencia_s"]
     lines = [
@@ -326,7 +330,9 @@ def write_report_draft(table: pd.DataFrame, output_dir: Path) -> Path:
         "https://archive.ics.uci.edu/dataset/321/electricityloaddiagrams20112014",
         "- Documentación de PyTorch, Nixtla y Chronos: consultar las notas "
         "de investigación del proyecto.",
-        "- Enlace Git del equipo: **AGREGAR URL REAL ANTES DE ENTREGAR**.",
+        "- Enlace Git del equipo: " + (
+            repo_url if repo_url else "**AGREGAR URL REAL ANTES DE ENTREGAR**"
+        ) + ".",
         "",
     ])
     destination = Path("report") / "informe_borrador.md"
@@ -338,10 +344,11 @@ def write_report_draft(table: pd.DataFrame, output_dir: Path) -> Path:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output-dir", type=Path, default=Path("outputs"))
+    parser.add_argument("--repo-url", type=str, default=None)
     args = parser.parse_args()
     table, directories = build_table(args.output_dir)
     make_figures(table, directories, args.output_dir)
-    draft = write_report_draft(table, args.output_dir)
+    draft = write_report_draft(table, args.output_dir, args.repo_url)
     print(f"Borrador del informe: {draft}")
     print(table.to_string(index=False))
 

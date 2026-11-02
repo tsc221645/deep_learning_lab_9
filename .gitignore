@@ -26,4 +26,5 @@ outputs/metrics/*
 *.md
 !/README.md
 !/EJECUCION_INTEGRANTE_B.md
+!/CONTINUAR_FASES_5_8.md
 .venv-1

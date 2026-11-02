@@ -49,49 +49,80 @@ def candidate_configs(model: str, artifact_dir: Path) -> list[dict]:
     ]
 
 
-def select_on_validation(panel: Panel, output_dir: Path) -> dict[str, dict]:
+def select_on_validation(panel: Panel, output_dir: Path,
+                         models: tuple[str, ...] = tuple(FACTORIES),
+                         lookbacks: tuple[int, ...] = (48, 168, 336)) -> dict[str, dict]:
     train = _slice(panel, *DEFAULT_SPLITS["train"])
     validation = _slice(panel, *DEFAULT_SPLITS["validation"])
-    rows = []
-    selected = {}
-    for model_name, factory in FACTORIES.items():
+    metrics_dir = output_dir / "metrics"
+    metrics_dir.mkdir(parents=True, exist_ok=True)
+    progress_path = metrics_dir / "phase5_validation.csv"
+    rows = (pd.read_csv(progress_path).to_dict("records")
+            if progress_path.exists() else [])
+    for model_name in models:
+        factory = FACTORIES[model_name]
         for config in candidate_configs(model_name, output_dir / "models" / "phase5"):
+            if config["lookback"] not in lookbacks:
+                continue
+            if any(row["config_id"] == config["config_id"] and
+                   Path(row["training_log"]).exists() for row in rows):
+                continue
             metadata = factory().fit(train, validation, config)
             log = pd.read_csv(metadata["training_log"])
             best = log.loc[log["epoch"].eq(metadata["best_epoch"])].iloc[0]
             score = float(best["validation_mase"])
             if not pd.notna(score):
                 raise ValueError(f"Undefined validation MASE: {config['config_id']}")
-            rows.append({
+            row = {
                 "model": model_name, "config_id": config["config_id"],
                 "lookback": config["lookback"], "best_epoch": metadata["best_epoch"],
                 "validation_mae_kwh": float(best["validation_mae_kwh"]),
                 "validation_mase": score,
                 "training_log": metadata["training_log"],
-            })
-            current = selected.get(model_name)
-            if current is None or score < current["validation_mase"]:
-                selected[model_name] = {
-                    "validation_mase": score,
-                    "config": {**config, "best_epoch": int(metadata["best_epoch"])},
-                }
-    metrics_dir = output_dir / "metrics"
-    metrics_dir.mkdir(parents=True, exist_ok=True)
-    pd.DataFrame(rows).to_csv(metrics_dir / "phase5_validation.csv", index=False)
-    (metrics_dir / "phase5_selected.json").write_text(
-        json.dumps(selected, indent=2, allow_nan=False), encoding="utf-8"
-    )
+            }
+            rows = [previous for previous in rows
+                    if previous["config_id"] != row["config_id"]]
+            rows.append(row)
+            pd.DataFrame(rows).to_csv(progress_path, index=False)
+    selected = {}
+    expected = {
+        config["config_id"]
+        for name in FACTORIES
+        for config in candidate_configs(name, output_dir / "models" / "phase5")
+    }
+    finished = {row["config_id"] for row in rows}
+    if expected.issubset(finished):
+        for name in FACTORIES:
+            candidates = [row for row in rows if row["model"] == name and
+                          row["config_id"] in expected]
+            winner = min(candidates, key=lambda row: float(row["validation_mase"]))
+            config = next(config for config in candidate_configs(
+                name, output_dir / "models" / "phase5")
+                if config["config_id"] == winner["config_id"])
+            selected[name] = {
+                "validation_mase": float(winner["validation_mase"]),
+                "config": {**config, "best_epoch": int(winner["best_epoch"])},
+            }
+        (metrics_dir / "phase5_selected.json").write_text(
+            json.dumps(selected, indent=2, allow_nan=False), encoding="utf-8"
+        )
     return selected
 
 
-def evaluate_selected(panel: Panel, output_dir: Path) -> pd.DataFrame:
+def evaluate_selected(panel: Panel, output_dir: Path,
+                      models: tuple[str, ...] = tuple(FACTORIES)) -> pd.DataFrame:
     selected_path = output_dir / "metrics" / "phase5_selected.json"
     selected = json.loads(selected_path.read_text(encoding="utf-8"))
     if set(selected) != set(FACTORIES):
         raise ValueError("Selection file must contain all three LSTM strategies")
-    rows = []
-    for model_name, factory in FACTORIES.items():
+    summary_path = output_dir / "metrics" / "phase5_test.csv"
+    rows = (pd.read_csv(summary_path).to_dict("records")
+            if summary_path.exists() else [])
+    for model_name in models:
+        factory = FACTORIES[model_name]
         config = selected[model_name]["config"]
+        if any(row["config_id"] == config["config_id"] for row in rows):
+            continue
         # The epoch count was fixed on validation before any test prediction.
         config = {**config, "refit_train_validation": True}
         result = backtest(factory(), panel, config=config, output_dir=output_dir)
@@ -100,8 +131,8 @@ def evaluate_selected(panel: Panel, output_dir: Path) -> pd.DataFrame:
             "validation_mase": selected[model_name]["validation_mase"],
             **result.metrics,
         })
+        pd.DataFrame(rows).to_csv(summary_path, index=False)
     summary = pd.DataFrame(rows)
-    summary.to_csv(output_dir / "metrics" / "phase5_test.csv", index=False)
     return summary
 
 
@@ -111,13 +142,19 @@ def main() -> None:
     parser.add_argument("--panel", type=Path, default=Path("data/processed/hourly.parquet"))
     parser.add_argument("--client-ids", type=Path, default=Path("data/processed/client_ids.csv"))
     parser.add_argument("--output-dir", type=Path, default=Path("outputs"))
+    parser.add_argument("--models", nargs="+", choices=tuple(FACTORIES),
+                        default=list(FACTORIES))
+    parser.add_argument("--lookbacks", nargs="+", type=int,
+                        choices=(48, 168, 336), default=[48, 168, 336])
     args = parser.parse_args()
     panel = load_panel_matrix(args.panel, args.client_ids)
     if args.stage == "select":
-        result = select_on_validation(panel, args.output_dir)
+        result = select_on_validation(panel, args.output_dir,
+                                      tuple(args.models), tuple(args.lookbacks))
         print(json.dumps(result, indent=2))
     else:
-        print(evaluate_selected(panel, args.output_dir).to_string(index=False))
+        print(evaluate_selected(panel, args.output_dir,
+                                tuple(args.models)).to_string(index=False))
 
 
 if __name__ == "__main__":

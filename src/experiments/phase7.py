@@ -48,8 +48,13 @@ def _selected_recurrent(output_dir: Path) -> tuple[str, type, dict]:
 
 
 def _baseline_selection(panel: Panel, output_dir: Path) -> tuple[str, object, dict]:
-    rows = []
+    destination = output_dir / "metrics" / "phase7_baseline_selection.csv"
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    rows = (pd.read_csv(destination).to_dict("records")
+            if destination.exists() else [])
     for name, factory in BASELINES.items():
+        if any(row["name"] == name for row in rows):
+            continue
         config = {
             "lookback": 168, "horizon": 24, "history_months": 30,
             "seed": 42, "mase_seasonality": 24,
@@ -58,10 +63,8 @@ def _baseline_selection(panel: Panel, output_dir: Path) -> tuple[str, object, di
         }
         result = score_validation(factory(), panel, config)
         rows.append({"name": name, "validation_mase": result["metrics"]["mase"]})
+        pd.DataFrame(rows).to_csv(destination, index=False)
     summary = pd.DataFrame(rows)
-    destination = output_dir / "metrics" / "phase7_baseline_selection.csv"
-    destination.parent.mkdir(parents=True, exist_ok=True)
-    summary.to_csv(destination, index=False)
     winner = summary.sort_values("validation_mase").iloc[0]["name"]
     return winner, BASELINES[winner], {
         "lookback": 168, "horizon": 24, "history_months": 30,
@@ -110,15 +113,35 @@ def _deep_selection(panel: Panel, output_dir: Path,
         if name not in candidates:
             raise ValueError(f"Saved model is not a current candidate: {name}")
         return name, candidates[name][0], saved["config"]
+    candidate_path = selection_path.with_name(
+        selection_path.stem.replace("_selection", "_candidates") + ".json"
+    )
+    completed = (json.loads(candidate_path.read_text(encoding="utf-8"))
+                 if candidate_path.exists() else {})
     rows = []
     best = None
     for name, (factory, base) in candidates.items():
         config = {**base, "config_id": f"{name}-deep-selection"}
-        validation = score_validation(factory(), panel, config)
-        score = validation["metrics"]["mase"]
+        cached = completed.get(name)
+        if cached is not None and cached["config"] == config:
+            score = cached["validation_mase"]
+            best_epoch = cached["best_epoch"]
+        else:
+            validation = score_validation(factory(), panel, config)
+            score = validation["metrics"]["mase"]
+            best_epoch = validation["fit_metadata"].get("best_epoch")
+            if score is None or not pd.notna(score):
+                raise ValueError(f"Undefined validation MASE for {name}")
+            score = float(score)
+            best_epoch = int(best_epoch) if best_epoch is not None else None
+            completed[name] = {"config": config, "validation_mase": score,
+                               "best_epoch": best_epoch}
+            candidate_path.parent.mkdir(parents=True, exist_ok=True)
+            candidate_path.write_text(
+                json.dumps(completed, indent=2, allow_nan=False),
+                encoding="utf-8")
         rows.append({"model": name, "validation_mase": score})
         if score is not None and (best is None or score < best[0]):
-            best_epoch = validation["fit_metadata"].get("best_epoch")
             if best_epoch is not None:
                 config["best_epoch"] = int(best_epoch)
             best = (score, name, factory, config)
@@ -152,9 +175,18 @@ def run_monthly(panel: Panel, output_dir: Path) -> pd.DataFrame:
          {**recurrent_config, "history_months": 100,
           "config_id": f"{recurrent_name}-monthly"}),
     ]
-    rows = []
-    by_month_rows = []
+    monthly_path = output_dir / "metrics" / "phase7_monthly.csv"
+    by_month_path = output_dir / "metrics" / "phase7_monthly_by_month.csv"
+    rows = (pd.read_csv(monthly_path).to_dict("records")
+            if monthly_path.exists() else [])
+    by_month_rows = (pd.read_csv(by_month_path).to_dict("records")
+                     if by_month_path.exists() else [])
     for name, factory, config in choices:
+        if (any(row["model"] == name for row in rows) and
+                sum(row["model"] == name for row in by_month_rows) == 3):
+            continue
+        rows = [row for row in rows if row["model"] != name]
+        by_month_rows = [row for row in by_month_rows if row["model"] != name]
         fixed = backtest(factory(), panel,
                          config={**config,
                                  "refit_train_validation": (
@@ -189,11 +221,9 @@ def run_monthly(panel: Panel, output_dir: Path) -> pd.DataFrame:
             "monthly_mae": monthly.metrics["mae"],
             "monthly_fit_count": monthly.experiment["fit_count"],
         })
+        pd.DataFrame(rows).to_csv(monthly_path, index=False)
+        pd.DataFrame(by_month_rows).to_csv(by_month_path, index=False)
     result = pd.DataFrame(rows)
-    result.to_csv(output_dir / "metrics" / "phase7_monthly.csv", index=False)
-    pd.DataFrame(by_month_rows).to_csv(
-        output_dir / "metrics" / "phase7_monthly_by_month.csv", index=False
-    )
     return result
 
 
@@ -203,14 +233,24 @@ def run_local(panel: Panel, output_dir: Path) -> pd.DataFrame:
     if len(ids) != 10:
         raise ValueError("Local/global experiment requires ten fixed clients")
     config = {**config, "refit_train_validation": config.get("best_epoch") is not None}
-    global_result = backtest(
-        factory(), panel,
-        config={**config, "config_id": f"{name}-global-local-comparison"},
-        output_dir=output_dir,
-    )
-    global_metrics = global_result.by_client.set_index("unique_id")
-    rows = []
+    global_path = output_dir / "metrics" / "phase7_global_for_local.csv"
+    if global_path.exists():
+        global_metrics = pd.read_csv(global_path).set_index("unique_id")
+    else:
+        global_result = backtest(
+            factory(), panel,
+            config={**config, "config_id": f"{name}-global-local-comparison"},
+            output_dir=output_dir,
+        )
+        global_result.by_client.to_csv(global_path, index=False)
+        global_metrics = global_result.by_client.set_index("unique_id")
+    destination = output_dir / "metrics" / "phase7_local_global.csv"
+    rows = (pd.read_csv(destination).to_dict("records")
+            if destination.exists() else [])
     for position, unique_id in enumerate(ids):
+        if any(row["unique_id"] == unique_id and row["model"] == name
+               for row in rows):
+            continue
         local_panel = Panel(
             (unique_id,), panel.timestamps, panel.values[position:position + 1]
         )
@@ -224,16 +264,20 @@ def run_local(panel: Panel, output_dir: Path) -> pd.DataFrame:
             "global_mase": float(global_metrics.loc[unique_id, "mase"]),
             "local_mase": result.metrics["mase"],
         })
+        pd.DataFrame(rows).to_csv(destination, index=False)
     comparison = pd.DataFrame(rows)
-    comparison.to_csv(output_dir / "metrics" / "phase7_local_global.csv",
-                      index=False)
     return comparison
 
 
 def run_seeds(panel: Panel, output_dir: Path) -> pd.DataFrame:
     name, factory, config = _deep_selection(panel, output_dir)
-    rows = []
+    destination = output_dir / "metrics" / "phase7_seeds.csv"
+    rows = (pd.read_csv(destination)[["model", "seed", "mase"]].to_dict("records")
+            if destination.exists() else [])
     for seed in (42, 43, 44):
+        if any(row["model"] == name and int(row["seed"]) == seed
+               for row in rows):
+            continue
         result = backtest(
             factory(), panel,
             config={**config, "seed": seed,
@@ -242,15 +286,23 @@ def run_seeds(panel: Panel, output_dir: Path) -> pd.DataFrame:
             output_dir=output_dir,
         )
         rows.append({"model": name, "seed": seed, "mase": result.metrics["mase"]})
+        pd.DataFrame(rows).to_csv(destination, index=False)
     summary = pd.DataFrame(rows)
     summary["mean_mase"] = float(summary["mase"].mean())
     summary["sd_mase"] = float(summary["mase"].std(ddof=1))
-    summary.to_csv(output_dir / "metrics" / "phase7_seeds.csv", index=False)
+    summary.to_csv(destination, index=False)
     return summary
 
 
-def run_history(panel: Panel, output_dir: Path) -> pd.DataFrame:
+HISTORY_MODELS = ("seasonal_naive_24", "lightgbm", "dlinear",
+                  "recurrent", "patchtst")
+
+
+def run_history(panel: Panel, output_dir: Path,
+                selected_models: tuple[str, ...] = HISTORY_MODELS) -> pd.DataFrame:
     """Predeclared 3/12/30-month sensitivity; no test-driven tuning."""
+    if not set(selected_models).issubset(HISTORY_MODELS):
+        raise ValueError(f"Unknown history model: {selected_models}")
     recurrent_name, recurrent_factory, recurrent_config = _selected_recurrent(
         output_dir)
     models = {
@@ -266,15 +318,20 @@ def run_history(panel: Panel, output_dir: Path) -> pd.DataFrame:
             "training_stride": 1, "validation_stride": 24,
             "max_train_windows_per_client": 256,
         }),
-        recurrent_name: (recurrent_factory, recurrent_config),
+        "recurrent": (recurrent_factory, recurrent_config),
         "patchtst": (lambda: NeuralForecastAdapter("PatchTST"), {
             "lookback": 168, "normalization": "per_series",
             "max_steps": 1000, "batch_size": 32,
             "early_stop_patience_steps": 5, "val_check_steps": 100,
         }),
     }
-    rows = []
-    for name, (factory, options) in models.items():
+    destination = output_dir / "metrics" / "phase7_history.csv"
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    rows = (pd.read_csv(destination).to_dict("records")
+            if destination.exists() else [])
+    for key in selected_models:
+        factory, options = models[key]
+        name = recurrent_name if key == "recurrent" else key
         for months in (3, 12, 30):
             config = {
                 "lookback": 168, "horizon": 24,
@@ -285,6 +342,9 @@ def run_history(panel: Panel, output_dir: Path) -> pd.DataFrame:
                 "history_months": months,
                 "config_id": f"{name}-history-{months}",
             }
+            if any(previous["config_id"] == config["config_id"]
+                   for previous in rows):
+                continue
             validation = score_validation(factory(), panel, config)
             best_epoch = validation["fit_metadata"].get("best_epoch")
             if best_epoch is not None and name != "lightgbm":
@@ -298,11 +358,9 @@ def run_history(panel: Panel, output_dir: Path) -> pd.DataFrame:
                 "test_mase": result.metrics["mase"],
                 "config_id": config["config_id"],
             })
-    summary = pd.DataFrame(rows)
-    destination = output_dir / "metrics" / "phase7_history.csv"
-    destination.parent.mkdir(parents=True, exist_ok=True)
-    summary.to_csv(destination, index=False)
-    return summary
+            pd.DataFrame(rows).sort_values(
+                ["model", "history_months"]).to_csv(destination, index=False)
+    return pd.DataFrame(rows).sort_values(["model", "history_months"])
 
 
 def main() -> None:
@@ -313,11 +371,18 @@ def main() -> None:
     parser.add_argument("--client-ids", type=Path,
                         default=Path("data/processed/client_ids.csv"))
     parser.add_argument("--output-dir", type=Path, default=Path("outputs"))
+    parser.add_argument("--history-models", nargs="+", choices=HISTORY_MODELS,
+                        default=list(HISTORY_MODELS))
     args = parser.parse_args()
     panel = load_panel_matrix(args.panel, args.client_ids)
     action = {"monthly": run_monthly, "local": run_local,
               "seeds": run_seeds, "history": run_history}[args.stage]
-    print(action(panel, args.output_dir).to_string(index=False))
+    if args.stage == "history":
+        result = run_history(panel, args.output_dir,
+                             tuple(args.history_models))
+    else:
+        result = action(panel, args.output_dir)
+    print(result.to_string(index=False))
 
 
 if __name__ == "__main__":

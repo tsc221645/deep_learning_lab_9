@@ -85,6 +85,9 @@ Usa `--smoke` para una comprobación rápida, no para reportar métricas finales
 
 ## Trabajo del integrante B (preparado, sin ejecutar)
 
+Para continuar desde la fase 5 en Kaggle y guardar resultados entre sesiones,
+consultar [CONTINUAR_FASES_5_8.md](CONTINUAR_FASES_5_8.md).
+
 El estado observado, los fallos de VRAM y las instrucciones para otra persona
 están en [EJECUCION_INTEGRANTE_B.md](EJECUCION_INTEGRANTE_B.md).
 
